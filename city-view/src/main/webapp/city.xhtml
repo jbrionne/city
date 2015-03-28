@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<meta charset="utf-8" />
+	<title>City</title>
+	<link rel="stylesheet" href="css/three.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<script src="js/three.min.js"></script>
+	<script src="js/SkyShader.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/Detector.js"></script>	
+	<script src="js/renderers/Projector.js"></script>
+	<script src="js/renderers/CanvasRenderer.js"></script>	
+	
+</h:head>
+<h:body>
+	
+	
+	 <header>
+		<h1>City</h1>					
+	</header>
+	
+	<section id="main">		
+	
+		<input id="clickMe" type="button" value="house"
+				onclick="askForCube();" />		
+	
+		<h:outputLabel id="citynameLabel"
+			value="#{cityView.cityName} " />
+		
+
+		<article id="myarticle" style="width:100%;height:100%">	
+			<div id="mycontainer"><br /><br /><br /><br /><br />Generating world...</div>
+		</article>
+	</section> 
+	
+				
+	
+	<h:inputHidden id="terrain" value="#{cityView.data}"></h:inputHidden>
+	
+
+		<script type="text/javascript">
+		//<![CDATA[ 
+		
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var camera, controls, scene, renderer;
+
+			var sky, sunSphere;	
+			
+			var distance = 400000;	
+			
+			var size = #{cityView.size};
+			var step = #{cityView.step};
+			
+			var worldWidth = #{cityView.worldWidth};
+			var worldDepth = #{cityView.worldDepth};
+			var maxheight = #{cityView.maxheight};
+			var waterheight = #{cityView.waterheight};
+			
+			var NEAR = 0.5;
+			var FAR = 2000000;
+			
+			//better solution ??
+			var tempo_array = document.getElementById('terrain').value;	
+			tempo_array = tempo_array.substring(1);
+			var data = tempo_array.split(",");
+						
+			var materialCube = new THREE.MeshLambertMaterial({
+				color : 0xffffff
+			});	
+			
+			var directionalLight;
+			
+			var sizePlan = size * 2;
+			 
+		    var mouse = new THREE.Vector2();
+		    var raycaster = new THREE.Raycaster();
+		    
+		    var helper;
+		    var mesh;
+		    
+		    var clock = new THREE.Clock();
+			
+		    var container;
+		    
+		    var xrenderer;
+		    var yrenderer;		    
+		    
+			init();
+			animate();
+			
+			function init() {				
+			    
+				initsize();
+				
+				//camera
+				camera = new THREE.PerspectiveCamera( 60, xrenderer / yrenderer, NEAR, FAR );
+				camera.position.z = 700;
+				camera.position.x = 500;
+				camera.position.y = 500;				
+				
+				//renderer
+				renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( xrenderer, yrenderer );				
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapSoft = true;
+				renderer.shadowMapType = THREE.PCFSoftShadowMap;
+								
+				
+				container = document.getElementById('mycontainer');	
+				container.innerHTML = "";
+				container.appendChild( renderer.domElement );				
+				
+				//scene
+				scene = new THREE.Scene();				
+				//scene.fog = new THREE.Fog( 0x59472b, 200, 3000 );
+				
+				initSky();
+				
+				initMap();				
+				
+				//control
+				controls = new THREE.OrbitControls( camera );
+				controls.damping = 0.2;
+				controls.minPolarAngle = 0; // radians
+				controls.maxPolarAngle = Math.PI / 2.5; // radians	
+				controls.noPan = true;
+				controls.noKeys = true;
+				controls.minDistance = 0;
+				controls.maxDistance = 1000;
+				
+				//light
+				directionalLight = new THREE.SpotLight( 0xffffff, 1);
+				directionalLight.castShadow = true;
+				directionalLight.shadowDarkness = 1.0;				
+				/* directionalLight.shadowCameraVisible = true;
+				*/
+				scene.add(directionalLight); 
+				ligthFromSun(0.5);
+				
+				
+				//helper		
+				var geometry = new THREE.CylinderGeometry( 0, 5, 25, 3 );
+				geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, 0 ) );
+				geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2 ) );
+				helper = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
+				scene.add( helper );
+				
+				// plane
+		       /*  var helper = new THREE.Mesh(new THREE.PlaneGeometry(step, step), new THREE.MeshNormalMaterial());
+				helper.overdraw = true;
+		        scene.add(helper); */				
+				
+				window.addEventListener( 'mousemove', onMouseMove, false );
+		        window.addEventListener('resize', windowResize, false);			    	
+
+				
+			}
+			
+			function initsize() {
+				var article = document.getElementById('myarticle');				
+				xrenderer = article.offsetWidth;
+				yrenderer = article.offsetHeight;	
+				//alert(offsetWidth);
+			}			
+			
+			var myfunctionResize;
+			var framesPerSecondwindowResize = 50;	
+			function windowResize( event ) {	
+				
+				event.preventDefault();
+				
+				clearTimeout(myfunctionResize);
+				myfunctionResize = setTimeout(function() {				 
+					doResize(event);
+				    }, 1000 / framesPerSecondwindowResize);				
+			}
+			
+			function doResize( event ){				
+				initsize();
+			    
+				// notify the renderer of the size change
+				renderer.setSize( xrenderer, yrenderer );
+				// update the camera
+				camera.aspect	= xrenderer/ yrenderer;
+				camera.updateProjectionMatrix();
+			}
+			
+		
+			
+			function initMap() {	
+				
+				var geometry = new THREE.PlaneBufferGeometry(sizePlan, sizePlan, worldWidth - 1, worldDepth - 1 );
+				geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+
+				var vertices = geometry.attributes.position.array;
+				console.log(vertices.length);
+				console.log(data.length);
+				
+				
+				var tmp;
+				for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {					
+					if(isNaN(data[ i ]) == true) {
+						//console.log("data for i " + i + " " + data[ i ]);
+						vertices[ j + 1 ] = tmp;
+					} else {
+						tmp = data[ i ];
+						vertices[ j + 1 ] = tmp;						
+					}				
+					
+				} 
+				
+				geometry.computeFaceNormals();
+
+				var texture = new THREE.Texture(generateTexture(data), THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping );
+				texture.needsUpdate = true;		
+				texture.anisotropy  = renderer.getMaxAnisotropy();
+
+				
+
+				mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { map: texture } ) );
+				mesh.receiveShadow = true;
+				scene.add( mesh ); 				
+				
+			}
+			
+			
+			var canvas;
+			
+			function generateTexture(data) {
+
+				var image, context, imageData;
+				
+				var width = worldWidth;
+				var height = worldDepth;
+				
+				canvas = document.createElement( 'canvas' );
+				canvas.width = width;
+				canvas.height = height;
+
+				context = canvas.getContext( '2d' );
+				context.fillStyle = "#FF0000";//'#000'; //red
+				context.fillRect( 0, 0, width, height );
+				context.imageSmoothingEnabled   = false;
+				context.webkitImageSmoothingEnabled = false;
+				context.mozImageSmoothingEnabled  = false;
+
+				image = context.getImageData( 0, 0, canvas.width, canvas.height);
+				imageData = image.data;	
+				
+				
+				
+				for ( var i = 0, j = 0, l = imageData.length; i < l; i += 4, j ++ ) {					
+					getAndSetColor(data, j, i, imageData);					
+				}
+				
+				context.putImageData( image, 0, 0 );			
+
+				return canvas;
+
+			}	
+			
+			function getAndSetColor(data, j, i, imageData){
+				var red = 0;
+				var green =	0;
+				var blue = 0;
+				
+				if(data[ j ] <= waterheight){
+					blue = 200;										
+				} else if(data[ j ] > waterheight && data[ j ]  < waterheight + 20) {	
+					//gradient
+					var a  = -(200 / 20);
+					var b = 200 - a * (waterheight);
+					blue = data[ j ] *  a  + b;	
+					
+					green = 200 - blue;							
+				} else if(data[ j ]  >= waterheight + 20 && data[ j ] < maxheight / 2) {						
+					green = 200;
+				} else if(data[ j ] >= maxheight / 2 && data[ j ]  < maxheight / 2 + 20) {	
+					//gradient
+					var a  = -(200 / 20);
+					var b = 200 - a * (maxheight / 2);
+					var tmp = data[ j ] *  a  + b;	
+					
+					blue = 200 - tmp;	
+					red = 200 - tmp;	
+					green = 200;
+				} else if(data[ j ] >= maxheight / 2 + 20) {
+					blue = 200;
+					red = 200;
+					green = 200; 
+				} 
+				
+				imageData[ i ] =  red + 128 * (data[ j ] / maxheight) * 2;
+				imageData[ i + 1 ] =  green + 128 * (data[ j ] / maxheight) * 2;
+				imageData[ i + 2 ] =  blue + 128 * (data[ j ] / maxheight) * 2; 
+			}
+			
+			function updateTexture(data, xA, yA, xB, yB) {				
+				var image, context, imageData;
+
+				var width = worldWidth;
+				var height = worldDepth;
+				
+				context = canvas.getContext( '2d' );				
+				image = context.getImageData( 0, 0, canvas.width, canvas.height);
+				imageData = image.data;
+				
+				if(xA == xB){
+					var min = yA;
+					var max = yB;
+					if(yA > yB) {
+						min = yB;
+						max = yA;
+					} 
+					
+					var minx = parseInt((min  + size) * width / (size * 2));
+					var maxx = parseInt((max  + size) * width / (size * 2));
+					var xAx = parseInt((xA  + size) * width / (size * 2));
+					
+					for(var i = minx; i < maxx; i++){
+						var tmp = (xAx  + i * width) * 4;						
+						imageData[tmp] = 200;
+						imageData[tmp + 1] = 100;
+						imageData[tmp + 2] = 100;
+					}					
+				} else if(yA == yB){
+					var min = xA;
+					var max = xB;
+					if(xA > xB) {
+						min = xB;
+						max = xA;
+					} 
+					
+					var minx = parseInt((min  + size) * width / (size * 2));
+					var maxx = parseInt((max  + size) * width / (size * 2));
+					var yAx = parseInt((yA  + size) * width / (size * 2));
+						
+					for(var i = minx; i < maxx; i++){
+						var tmp = (i   + yAx * width) * 4;						
+						imageData[tmp] = 200;
+						imageData[tmp + 1] = 100;
+						imageData[tmp + 2] = 100;	
+					}
+				} 				
+				context.putImageData( image, 0, 0 );
+				return canvas;
+
+			}
+			
+			function removeTexture(data, xA, yA, xB, yB) {
+				
+				var image, context, imageData;
+
+				var width = worldWidth;
+				var height = worldDepth;
+				
+				context = canvas.getContext( '2d' );				
+				image = context.getImageData( 0, 0, canvas.width, canvas.height);
+				imageData = image.data;
+				
+				if(xA == xB){
+					var min = yA;
+					var max = yB;
+					if(yA > yB) {
+						min = yB;
+						max = yA;
+					} 
+					
+					var minx = parseInt((min  + size) * width / (size * 2));
+					var maxx = parseInt((max  + size) * width / (size * 2));
+					var xAx = parseInt((xA  + size) * width / (size * 2));
+					
+					for(var i = minx; i < maxx; i++){
+						var tmp = (xAx  + i * width) * 4;
+						getAndSetColor(data, xAx  + i * width, tmp, imageData);	
+						
+					}
+					
+				} else if(yA == yB){
+					var min = xA;
+					var max = xB;
+					if(xA > xB) {
+						min = xB;
+						max = xA;
+					} 
+					
+					var minx = parseInt((min  + size) * width / (size * 2));
+					var maxx = parseInt((max  + size) * width / (size * 2));
+					var yAx = parseInt((yA  + size) * width / (size * 2));
+						
+					for(var i = minx; i < maxx; i++){
+						var tmp = (i   + yAx * width) * 4;
+						getAndSetColor(data, i   + yAx * width, tmp, imageData);	
+						
+					}
+				} 				
+				context.putImageData( image, 0, 0 );
+				return canvas;
+			}			
+			
+
+			function initSky(){
+				// Add Sky Mesh
+				sky = new THREE.Sky();
+				scene.add( sky.mesh );
+
+				// Add Sun Helper
+				sunSphere = new THREE.Mesh( new THREE.SphereGeometry( 20000, 30, 30 ),
+					new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: false }));
+				sunSphere.position.y = -700000;
+				sunSphere.visible = false;
+				scene.add(sunSphere);
+			}
+
+			var myfunctionMouse;
+			var framesPerSecondMouseMove = 50;	
+			function onMouseMove( event ) {	
+				
+				event.preventDefault();
+				
+				clearTimeout(myfunctionMouse);
+				myfunctionMouse = setTimeout(function() {				 
+					 doMove(event);
+				    }, 1000 / framesPerSecondMouseMove);
+				 
+				
+			}
+			
+			function doMove( event ){
+				
+				var parentPosition = getPosition(renderer.domElement);
+				var xPosition = event.clientX - parentPosition.x;
+			    var yPosition = event.clientY - parentPosition.y;
+			    
+			    mouse.x = ( xPosition / renderer.domElement.width ) * 2 - 1;
+				mouse.y = - ( yPosition / renderer.domElement.height ) * 2 + 1; 
+				
+				raycaster.setFromCamera( mouse, camera );
+
+				// See if the ray from the camera into the world hits one of our meshes
+				var intersects = raycaster.intersectObject( mesh );				
+				// Toggle rotation bool for meshes that we clicked
+				if ( intersects.length > 0 ) {
+
+					helper.position.set( 0, 0, 0 );
+					helper.lookAt( intersects[ 0 ].face.normal );
+
+					helper.position.copy( intersects[ 0 ].point );
+
+				}
+			}
+			
+			 
+			function getPosition(el) {			    
+			    for (var lx=0, ly=0;
+			         el != null;
+			         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+			    return {x: lx,y: ly};
+			}		
+
+			var framesPerSecond = 15;
+			//deliberately slowing our animation down to 10 FPS.				 
+			function animate() {				
+			    setTimeout(function() {
+			        requestAnimationFrame(animate);
+			 
+			        // animating/drawing code goes here
+			        controls.update( clock.getDelta() );
+					render();
+			 
+			 
+			    }, 1000 / framesPerSecond);
+			} 
+			
+
+			function render() {					
+				renderer.render( scene, camera );
+			}
+			
+			
+			//custom functions...			
+			function controler(image) {
+				console.log(image);		
+				var json = JSON.parse(image);
+				var command = json.command;
+				if(command == "create_transport" || command == "create" || command == "remove" || command == "move") {
+					draw(json);					
+				} 				
+				if(command == "updateSun"){
+					drawSun(json);
+				}	
+				if(command == "create_road" || command == "remove_road") {
+					drawRoad(json);	
+				}
+			}				
+			
+			function drawSun(json) {	
+					console.log("drawSun");
+					
+					var uniforms = sky.uniforms;
+					uniforms.turbidity.value = json.turbidity;
+					uniforms.reileigh.value = json.reileigh;
+					uniforms.luminance.value = json.luminance;
+					uniforms.mieCoefficient.value = json.mieCoefficient;
+					uniforms.mieDirectionalG.value = json.mieDirectionalG;
+
+					var inclination = json.inclination;
+					var azimuth = json.azimuth;
+					
+					var theta = Math.PI * (inclination - 0.5);
+					var phi = 2 * Math.PI * (azimuth - 0.5);
+
+					sunSphere.position.x = distance * Math.cos(phi);
+					sunSphere.position.y = distance * Math.sin(phi) * Math.sin(theta); 
+					sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta); 
+
+					sunSphere.visible = json.sun;
+					
+					directionalLight.position.x = 3000 * Math.cos(phi);
+					directionalLight.position.y = 3000 * Math.sin(phi) * Math.sin(theta); 
+					directionalLight.position.z = 3000 * Math.sin(phi) * Math.cos(theta); 
+
+
+					sky.uniforms.sunPosition.value.copy(sunSphere.position);
+					
+					ligthFromSun(inclination);
+					
+			} 
+			 
+			 function ligthFromSun(inclination){
+				 if(inclination > 0.5 || inclination < -0.5) {						
+						directionalLight.intensity = 0.1;						
+					} else {
+						directionalLight.intensity = 1;
+						directionalLight.target.position.set( 0, 0, 0 );						
+					}
+			 }
+			 
+
+				function askForCube() {
+					var json = JSON.stringify({
+						"value" : "house"
+					});
+					sendText(json);
+				}
+				
+				function askForSun() {
+					var json = JSON.stringify({
+						"value" : "sun"
+					});
+					sendText(json);
+				}
+				
+				function drawRoad(json){
+					
+					var xa = json.xa;
+					var za = json.za;
+					var xb = json.xb;
+					var zb = json.zb;					
+					var command = json.command;
+					
+					if(command == "create_road") {
+					
+						var texture = new THREE.Texture(updateTexture(data, xa, za, xb, zb), THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping );
+						
+						texture.needsUpdate = true;	
+						mesh.material.map = texture;
+						mesh.material.needsUpdate = true;	
+						mesh.receiveShadow = true;							
+					} else if(command == "remove_road") {
+							
+						var texture = new THREE.Texture(removeTexture(data, xa, za, xb, zb), THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping );
+						
+						texture.needsUpdate = true;	
+						mesh.material.map = texture;
+						mesh.material.needsUpdate = true;	
+						mesh.receiveShadow = true;							
+							
+					}					
+				}
+				
+				function draw(json) {
+					var x = json.x;
+					var y = json.y;
+					var z = json.z;
+					var height = json.height;
+					var command = json.command;
+					var name = json.name;
+					
+					if(command == "create" || command == "create_transport") {						
+						
+						var geometry = new THREE.BoxGeometry(step, height, step);
+						// get rid of the bottom face - it is never seen
+						geometry.faces.splice( 6, 1 );
+						geometry.faceVertexUvs[0].splice( 6, 1 );
+						
+						var cube = new THREE.Mesh(geometry, materialCube);						
+						
+						cube.name = name;
+						cube.position.x = x;
+						cube.position.y = (height / 2) + y;
+						cube.position.z = z;					
+						 
+						if(command == "create") {
+							cube.castShadow = true;
+							cube.receiveShadow = false;
+						} else {
+							cube.castShadow = false;
+							cube.receiveShadow = false;
+						}
+						
+						scene.add(cube); 
+						
+					} else if(command == "remove") {		
+						console.log(x + ":" + z);
+						var object = scene.getObjectByName(name);
+						console.log(object);
+						scene.remove(object);		
+					}  else if(command == "move") {		
+						console.log(x + ":" + z);
+						var object = scene.getObjectByName(name);
+						console.log(object);
+						object.position.x = x;
+						object.position.y = (height / 2) + y;
+						object.position.z = z;	
+					}						
+				}
+		//]]>
+		</script>
+
+
+	<script type="text/javascript" src="js/websocket_city.js"></script>	
+		
+		
+		
+</h:body>
+</html>

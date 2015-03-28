@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>fr.city</groupId>
+		<artifactId>city-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>	
+	</parent>
+	
+	
+	<groupId>fr.city</groupId>
+	<artifactId>city-core</artifactId>
+	<version>0.0.1-SNAPSHOT</version>		
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>fr.map</groupId>
+			<artifactId>map-core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>fr.graph</groupId>
+			<artifactId>graph-core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>net.sf.dozer</groupId>
+			<artifactId>dozer</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>fr.network</groupId>
+			<artifactId>transport</artifactId>
+		</dependency>
+		
+			<!-- JSON -->
+
+		<dependency>
+			<groupId>javax.json</groupId>
+			<artifactId>javax.json-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
+		
+		<!-- LOG -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-access</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		
+
+		<!-- TEST -->
+
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+	</dependencies>
+</project>

@@ -1,0 +1,18 @@
+* {
+	margin: 0;
+	padding: 0
+}
+
+
+
+body {
+	color: #61443e;
+	font-family:Monospace;
+	font-size:13px;
+	text-align:center;
+
+	background-color: #bfd1e5;
+	margin: 0px;
+	overflow: hidden;
+}
+

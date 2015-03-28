@@ -1,0 +1,82 @@
+body, html {
+	 height: 100%;
+	 padding: 0;
+}
+
+#wrapper {
+	width: 980px;
+	margin: 0 auto 0 auto;
+}
+
+#main {
+	float: left;
+	width: 75%;
+	margin: 0 0 50px 0;
+	height: 90%;
+}
+
+#sidebar {
+	float: left;
+	width: 22%;
+	margin-left: 1%;
+	margin-top: 1em;
+}
+
+footer {
+	clear: both;
+}
+
+#wrapper>nav {
+	padding: 1em;
+	border: 1px dashed #444;
+	margin-top: 1em;
+}
+
+nav ul li {
+	display: inline-block;
+}
+
+article {
+	/* border: 1px dashed #444; */
+	/* margin: 1em;
+	padding: 1em; */
+	background: #fff;
+}
+
+article h2 {
+	/* margin-top: 1em; */
+}
+
+article header,article footer {
+	border: 1px dashed #ccc;
+	/* padding: 1em; */
+	background: #ddd;
+}
+
+aside {
+	border: 1px dashed #444;
+}
+
+article aside {
+	background: #fff;
+	/* margin: 1em 3em;
+	padding: 0.5em; */
+	border: 1px dashed #ccc;
+}
+
+/* Marquage spécifique */
+article,footer,header,aside,nav {
+	position: relative;
+}
+
+span.elem {
+	background: #c00;
+	color: white;
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* margin: 0;
+	padding: 0.5em; */
+	z-index: 100;
+	opacity: 0.5;
+}
