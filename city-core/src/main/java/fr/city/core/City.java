@@ -111,6 +111,9 @@ public class City {
 	}
 
 	public void removeBuilding(String name) {
+		if(name == null || name.equals("")) {
+			throw new IllegalArgumentException("name must not be null or empty");
+		}
 		String jsonBuilding = (String) graphBuilding.find(BUILDING, name, Graph.CUSTOM);
 		ObjectMapper mapper = new ObjectMapper();
 		Building bOld = null;
@@ -126,6 +129,12 @@ public class City {
 	}
 	
 	public List<PathInfo> findPath(String nameA, String nameB) {
+		if(nameA == null || nameA.equals("")) {
+			throw new IllegalArgumentException("nameA must not be null or empty");
+		}
+		if(nameB == null || nameB.equals("")) {
+			throw new IllegalArgumentException("nameB must not be null or empty");
+		}
 		List<PathInfo> path = new ArrayList<>();
 		List<InfoNode> infonodes =  graphBuilding.findPath(BUILDING, nameA, nameB);
 		Mapper mapperBean = new DozerBeanMapper();
@@ -148,6 +157,12 @@ public class City {
 	}
 
 	public Building createBuilding(int x, int z, int height) {
+		if(x < 0 || z < 0 || x > max || z > max){
+			throw new IllegalArgumentException("The range is  0 to " + (max - 1));
+		}
+		if(height < 0){
+			throw new IllegalArgumentException("The height must be positive");
+		}
 		String jsonBuilding = (String) graphBuilding.findEventXYNodeProperty(BUILDING, x, z, Graph.CUSTOM);
 		if (jsonBuilding != null) {
 			throw new IllegalArgumentException("The building already exist " + x + ":" + z);
@@ -176,6 +191,16 @@ public class City {
 	}
 
 	public Road createRoad(int x, int z, int xD, int zD) {	
+		if(x < 0 || z < 0 || x > max || z > max){
+			throw new IllegalArgumentException("The range is  0 to " + (max - 1) + " " + x + " " + z);
+		}
+		if(xD < 0 || zD < 0 || xD > max || zD > max){
+			throw new IllegalArgumentException("The range is  0 to " + (max - 1) + " " + xD + " " + zD);
+		}
+		if (x != xD && z != zD) {
+			throw new IllegalArgumentException(
+					"you must have x == xD or z == zD");
+		}
 		Road r = new Road();
 		r.setXa(x);
 		r.setZa(z);
@@ -200,6 +225,12 @@ public class City {
 	
 
 	public Building updateBuilding(int x, int z, int height) {
+		if(x < 0 || z < 0 || x > max || z > max){
+			throw new IllegalArgumentException("The range is  0 to " + (max - 1) + " " + x + " " + z);
+		}
+		if(height < 0){
+			throw new IllegalArgumentException("The height must be positive " + height);
+		}
 		Object jsonBuilding = graphBuilding.findEventXYNodeProperty(BUILDING, x, z, Graph.CUSTOM);
 		if (jsonBuilding != null) {
 			ObjectMapper mapper = new ObjectMapper();
@@ -218,6 +249,12 @@ public class City {
 	}
 
 	public void moveTransport(String name, Coord2D coord) {
+		if(name == null || name.equals("")) {
+			throw new IllegalArgumentException("name must not be null or empty");
+		}
+		if(coord.getX() < 0 || coord.getZ() < 0 || coord.getX() > max || coord.getZ() > max){
+			throw new IllegalArgumentException("The range is  0 to " + (max - 1) + " " + coord.getX() + " " + coord.getZ() );
+		}
 		Building b = transportsMap.get(name);
 		b.setX(coord.getX());
 		b.setZ(coord.getZ());
@@ -229,11 +266,20 @@ public class City {
 	}
 
 	public void removeTransport(String name) {
+		if(name == null || name.equals("")) {
+			throw new IllegalArgumentException("name must not be null or empty");
+		}
 		Building b = transportsMap.remove(name);
 		observerCity.removeTransport(b);
 	}
 
 	public String createTransport(Coord2D coord) {
+		if(coord == null) {
+			throw new IllegalArgumentException("coord must not be null");
+		}
+		if(coord.getX() < 0 || coord.getZ() < 0 || coord.getX() > max || coord.getZ() > max){
+			throw new IllegalArgumentException("The range is  0 to " + (max - 1) + " " + coord.getX() + " " + coord.getZ() );
+		}
 		Building b = new Building();
 		LOG.info("new Transport x:" + coord.getX() + "  z:" + coord.getZ());
 		b.setX(coord.getX());

@@ -12,21 +12,28 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.tooling.GlobalGraphOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphUtils {
+
+	private static final Logger LOG = LoggerFactory.getLogger(GraphUtils.class);
 
 	private GraphUtils() {
 		throw new AssertionError("Don't instantiated this class");
 	}
 
-	public static Relationship createRelationship(final Node start, final Node end, final Object... properties) {
+	public static Relationship createRelationship(final Node start, final Node end, String lengthName, int length) {
 		if(start == null) {
 			throw new NullPointerException("start is null");
 		}
 		if(end == null) {
 			throw new NullPointerException("end is null");
 		}
-		return setProperties(start.createRelationshipTo(end, RelTypes.EVENT), properties);
+		
+		Relationship r = start.createRelationshipTo(end, RelTypes.EVENT);		
+		r.setProperty(lengthName, length);		
+		return r;
 	}
 	
 	public static boolean hasRelationshipWithNode(final Node start, final Node end) {		
@@ -42,12 +49,30 @@ public class GraphUtils {
 		}		
 		return false;
 	}
-
-	public static Node createNode(GraphDatabaseService graphDb, Index<Node> nodeIndex, final Object... properties) {
-		Node n = setProperties(graphDb.createNode(), properties);
-		nodeIndex.add(n, properties[0].toString(), properties[1]);
-		return n;
+	
+	public static Node createNode(GraphDatabaseService graphDb,
+			Index<Node> nodeIndex, String name, String name2, String x, int x2,
+			String y, int y2, String custom, String json) {
+		Node entity = graphDb.createNode();		
+		entity.setProperty(name, name2);
+		entity.setProperty(x, x2);	
+		entity.setProperty(y, y2);
+		entity.setProperty(custom, json);		
+		nodeIndex.add(entity, name, name2);
+		return entity;
 	}
+	
+	public static Node createNode(GraphDatabaseService graphDb,
+			Index<Node> nodeIndex, String name, String name2, String x, int x2,
+			String y, int y2) {
+		Node entity = graphDb.createNode();		
+		entity.setProperty(name, name2);
+		entity.setProperty(x, x2);	
+		entity.setProperty(y, y2);		
+		nodeIndex.add(entity, name, name2);
+		return entity;
+	}
+	
 
 	public static Node findEventNode(GraphDatabaseService graphDb, Index<Node> nodeIndex, String idToFind) {
 		try (Transaction tx = graphDb.beginTx()) {
@@ -94,28 +119,42 @@ public class GraphUtils {
 
 	public static Object findEventXYNodeProperty(GraphDatabaseService graphDb, Index<Node> nodeIndex, int x, int y,
 			String property) {
-		try (Transaction tx = graphDb.beginTx()) {
-			Iterable<Node> hits = nodeIndex.query(Graph.X + ":" + x + " AND " + Graph.Y + ":" + y);
+		try (Transaction tx = graphDb.beginTx()) {			 
+			Iterable<Node> hits = nodeIndex.query(Graph.X, x);				
 			Node foundEvent = null;
 			if (hits.iterator().hasNext()) {
 				foundEvent = hits.iterator().next();
+				Integer o = (Integer) foundEvent.getProperty(Graph.Y);
+				if(o != null) {
+					if(o.intValue() == y)  {					
+						return foundEvent.getProperty(property);
+					}
+				}				
 			} else {
 				return null;
 			}
+			
 			tx.success();
 			return foundEvent.getProperty(property);
 		}
 	}
 	
 	public static Node findEventXYNode(GraphDatabaseService graphDb, Index<Node> nodeIndex, int x, int y) {
-		try (Transaction tx = graphDb.beginTx()) {
-			Iterable<Node> hits = nodeIndex.query(Graph.X + ":" + x + " AND " + Graph.Y + ":" + y);
+		try (Transaction tx = graphDb.beginTx()) {		
+			Iterable<Node> hits = nodeIndex.query(Graph.X, x);				
 			Node foundEvent = null;
 			if (hits.iterator().hasNext()) {
 				foundEvent = hits.iterator().next();
+				Integer o = (Integer) foundEvent.getProperty(Graph.Y);
+				if(o != null) {
+					if(o.intValue() == y)  {					
+						return foundEvent;
+					}
+				}				
 			} else {
 				return null;
 			}
+			
 			tx.success();
 			return foundEvent;
 		}
@@ -140,12 +179,7 @@ public class GraphUtils {
 		}
 	}
 
-	public static <T extends PropertyContainer> T setProperties(final T entity, final Object[] properties) {
-		for (int i = 0; i < properties.length; i = i + 2) {
-			String key = properties[i].toString();
-			Object value = properties[i + 1];
-			entity.setProperty(key, value);
-		}
-		return entity;
-	}
+	
+
+	
 }

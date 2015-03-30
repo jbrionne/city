@@ -24,14 +24,34 @@ public class GraphEntry {
 		graph.createIndex(indexName);
 	}
 
-	public void createRoad(String indexName, String name, int xA, int yA, int xB, int yB) {
+	public void createRoad(String indexName, String name, int xA, int yA,
+			int xB, int yB) {
+		LOG.info("createRoad " + xA + "," + yA + "," + xB + "," + yB);
 		// TODO improve !!!!
 		if (xA != xB && yA != yB) {
-			throw new IllegalArgumentException("you must have xA == xB or yA == yB");
-		}			
-		Node nA = findOrCreateNode(indexName, name, xA, yA);		
+			throw new IllegalArgumentException(
+					"you must have xA == xB or yA == yB");
+		}
 
-		Node nB = findOrCreateNode(indexName, name, xB, yB);
+		Node nA = graph.findEventXYNode(indexName, xA, yA);
+		Node nB = graph.findEventXYNode(indexName, xB, yB);
+		LOG.info(nA + " " + xA + "," + yA);
+		LOG.info(nB + " " + xB + "," + yB);
+		if (nA != null && nB != null) {
+			if (graph.hasRelationshipWithNode(nA, nB)) {
+				throw new IllegalArgumentException("the road already exist "
+						+ xA + "," + yA + "," + xB + "," + yB);
+			}
+		} else {
+			if (nA == null) {
+				nA = graph.createNode(indexName, name + xA + ":" + yA, xA, yA,
+						null);
+			}
+			if (nB == null) {
+				nB = graph.createNode(indexName, name + xB + ":" + yB, xB, yB,
+						null);
+			}
+		}
 
 		Node nmin = nA;
 		Node nmax = nB;
@@ -53,7 +73,8 @@ public class GraphEntry {
 				nmax = nA;
 			}
 
-			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY, maxY);
+			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY,
+					maxY);
 		} else if (yA == yB) {
 			minX = xA;
 			maxX = xB;
@@ -64,15 +85,16 @@ public class GraphEntry {
 				nmin = nB;
 				nmax = nA;
 			}
-			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX, minY);
+			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX,
+					minY);
 		} else {
-			throw new IllegalArgumentException("you must have xA == xB or yA == yB");
+			throw new IllegalArgumentException(
+					"you must have xA == xB or yA == yB");
 		}
-
 	}
 
-	private void findNodeAndMakeNetworkY(String indexName, Node nmin,
-			Node nmax, int minX, int maxX, int minY) {
+	private void findNodeAndMakeNetworkY(String indexName,
+			Node nmin, Node nmax, int minX, int maxX, int minY) {
 		Node nX = nmin;
 		Node prev = nmin;
 		for (int i = minX + 1; i < maxX; i++) {
@@ -86,8 +108,8 @@ public class GraphEntry {
 		createRelation(nX, nmax);
 	}
 
-	private void findNodeAndMakeNetworkX(String indexName, Node nmin, Node nmax,
-			int minX, int minY, int maxY) {
+	private void findNodeAndMakeNetworkX(String indexName, 
+			Node nmin, Node nmax, int minX, int minY, int maxY) {
 		Node nX = nmin;
 		Node prev = nmin;
 		for (int i = minY + 1; i < maxY; i++) {
@@ -96,7 +118,7 @@ public class GraphEntry {
 				nX = r;
 				createRelation(prev, nX);
 				prev = nX;
-			} 
+			}
 		}
 		createRelation(nX, nmax);
 	}
@@ -106,19 +128,23 @@ public class GraphEntry {
 		if (nB != null) {
 			LOG.info("Node already exist " + xB + yB);
 		} else {
-			nB = graph.createNode(indexName, name + xB + ":" +  yB, xB, yB, null);
+			nB = graph
+					.createNode(indexName, name + xB + ":" + yB, xB, yB, null);
 		}
 		return nB;
 	}
 
 	private void createRelation(Node nmin, Node nX) {
 		if (!graph.hasRelationshipWithNode(nmin, nX)) {
-			LOG.info("create relationship {} | {} ",nmin.toString(), nX.toString());			
+			LOG.info("create relationship {} | {} ", nmin.toString(),
+					nX.toString());
 			graph.createRelationship(
 					nmin,
 					nX,
-					getCost((int) graph.getProperty(nmin, Graph.X), (int) graph.getProperty(nmin, Graph.Y),
-							(int) graph.getProperty(nX, Graph.X), (int) graph.getProperty(nX, Graph.Y)));
+					getCost((int) graph.getProperty(nmin, Graph.X),
+							(int) graph.getProperty(nmin, Graph.Y),
+							(int) graph.getProperty(nX, Graph.X),
+							(int) graph.getProperty(nX, Graph.Y)));
 
 		}
 	}
@@ -133,7 +159,8 @@ public class GraphEntry {
 		graph.createNode(indexName, name, x, y, json);
 	}
 
-	public void createRelationship(String indexName, String nameA, String nameB, int length) {
+	public void createRelationship(String indexName, String nameA,
+			String nameB, int length) {
 		graph.createRelationship(indexName, nameA, nameB, length);
 	}
 
@@ -169,7 +196,8 @@ public class GraphEntry {
 		return graph.find(indexName, name, property);
 	}
 
-	public Object findEventXYNodeProperty(String indexName, int x, int y, String property) {
+	public Object findEventXYNodeProperty(String indexName, int x, int y,
+			String property) {
 		return graph.findEventXYNodeProperty(indexName, x, y, property);
 	}
 
