@@ -6,10 +6,7 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.city.core.Building;
 import fr.city.core.City;
-import fr.network.transport.liaison.Product;
-import fr.network.transport.network.Address;
 
 public class LifeTask extends TimerTask {
 

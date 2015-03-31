@@ -43,7 +43,7 @@ public class City {
 	private static final String ROAD = "ROAD";
 	
 
-	private GraphEntry graphBuilding = new GraphEntry("TEST", false, BUILDING, ROAD);
+	private GraphEntry graphBuilding;
 	private TerrainLayout terrainLayout;
 
 	private Map<String, Building> transportsMap = new HashMap<>();
@@ -54,12 +54,13 @@ public class City {
 		this.terrainLayout = new TerrainLayout(max);
 	}
 
-	public static City getInstance(ObserverCity myObserverCity) {
+	public static City getInstance(ObserverCity myObserverCity, String repo, boolean test) {
 		if (city == null) {
 			synchronized (monitor) {
 				if (city == null) {
 					LOG.info("City getInstance");
 					city = new City();
+					city.graphBuilding = new GraphEntry(repo, test, BUILDING, ROAD);
 					observerCity = myObserverCity;
 					session = new Session(new PhysicalMoveCity(city));
 					return city;
@@ -67,6 +68,13 @@ public class City {
 			}
 		}
 		return city;
+	}
+	
+	public void destroy() {
+		synchronized (monitor) {					
+			city.graphBuilding.shutdown();
+			city = null;
+		}
 	}
 	
 	public List<Road> getAllRoads() {
