@@ -24,7 +24,7 @@ public class Ecosystem {
 
 	private Ecosystem(ObserverCity myObserverCity) {
 		LOG.info("Ecosystem");
-		this.city = City.getInstance(myObserverCity);
+		this.city = City.getInstance(myObserverCity, "TEST", false);
 		TimerTask timerTask = new LifeTask(city);
 		Timer timer = new Timer(true);
 		timer.scheduleAtFixedRate(timerTask, 5000, PERIOD);

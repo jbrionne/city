@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.neo4j.kernel.impl.util.FileUtils;
+import org.neo4j.io.fs.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -21,7 +21,7 @@ public class GraphTest {
 	@Test
 	public void f() {
 
-		GraphEntry graph = new GraphEntry("TEST", INDEXNAME);
+		GraphEntry graph = new GraphEntry("TEST", true, INDEXNAME);
 
 		graph.create(INDEXNAME, "A", 0, 0, null);
 		graph.create(INDEXNAME, "B", 7, 0, null);

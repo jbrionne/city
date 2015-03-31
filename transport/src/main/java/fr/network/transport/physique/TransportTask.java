@@ -28,9 +28,7 @@ public class TransportTask extends TimerTask {
 	@Override
 	public void run() {
 		time = time + Physical.PERIOD;
-		lastRefresh = lastRefresh + Physical.PERIOD;
-		long start = System.currentTimeMillis();
-		LOG.info("run TransportTask {} ", start);
+		lastRefresh = lastRefresh + Physical.PERIOD;		
 		synchronized (monitor) {		
 			for (Container container : containers) {
 				
@@ -59,8 +57,7 @@ public class TransportTask extends TimerTask {
 					physicalMove.move(container.getName(), container.getCoordinates());
 				}
 			}
-		}
-		LOG.info("iterate TransportTask {}", start - System.currentTimeMillis());
+		}		
 	}
 
 	public void addContainer(Container c){
