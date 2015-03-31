@@ -21,72 +21,72 @@ public class ThreeObserverCity implements ObserverCity {
 
 	@Override
 	public void createBuilding(Building b) {
-		LOG.info("createBuilding");
+		LOG.debug("createBuilding");
 		try {
 			MyServerConfigurator.CITYBOARD.createBuilding(b, "create");
 		} catch (Exception e) {
-			LOG.info("createBuilding", e);
+			LOG.error("createBuilding", e);
 		}
 	}
 
 	@Override
 	public void removeBuilding(Building b) {
-		LOG.info("removeBuilding");
+		LOG.debug("removeBuilding");
 		try {
 			MyServerConfigurator.CITYBOARD.removeBuilding(b);
 		} catch (Exception e) {
-			LOG.info("removeBuilding", e);
+			LOG.error("removeBuilding", e);
 		}		
 	}
 
 	@Override
 	public void createTransport(Building b) {
-		LOG.info("createTransport");
+		LOG.debug("createTransport");
 		try {
 			MyServerConfigurator.CITYBOARD.createTransport(b);
 		} catch (Exception e) {
-			LOG.info("createTransport", e);
+			LOG.error("createTransport", e);
 		}		
 	}
 
 	@Override
 	public void moveTransport(Building b) {
-		LOG.info("moveTransport");
+		LOG.debug("moveTransport");
 		try {
 			MyServerConfigurator.CITYBOARD.moveTransport(b);
 		} catch (Exception e) {
-			LOG.info("moveTransport", e);
+			LOG.error("moveTransport", e);
 		}			
 	}
 
 	@Override
 	public void createRoad(Road r) {
-		LOG.info("createRoad");
+		LOG.debug("createRoad");
 		try {
 			MyServerConfigurator.CITYBOARD.createRoad(r);
 		} catch (Exception e) {
-			LOG.info("removeBuilding", e);
+			LOG.error("removeBuilding", e);
 		}	
 		
 	}
 
 	@Override
 	public void removeTransport(Building b) {
-		LOG.info("removeTransport");
+		LOG.debug("removeTransport");
 		try {
 			MyServerConfigurator.CITYBOARD.removeTransport(b);
 		} catch (Exception e) {
-			LOG.info("removeTransport", e);
+			LOG.error("removeTransport", e);
 		}
 	}
 
 	@Override
 	public void removeRoad(Road r) {
-		LOG.info("removeRoad");
+		LOG.debug("removeRoad");
 		try {
 			MyServerConfigurator.CITYBOARD.removeRoad(r);
 		} catch (Exception e) {
-			LOG.info("removeRoad", e);
+			LOG.error("removeRoad", e);
 		}
 		
 	}

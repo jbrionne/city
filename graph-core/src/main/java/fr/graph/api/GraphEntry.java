@@ -5,6 +5,8 @@ import java.util.List;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.test.TestGraphDatabaseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +18,13 @@ public class GraphEntry {
 
 	private static final Logger LOG = LoggerFactory.getLogger(GraphEntry.class);
 
-	public GraphEntry(String dbPath, String... index) {
-		this.graph = new Graph(dbPath, index);
+	public GraphEntry(String dbPath, boolean test, String... index) {
+		if(test) {			
+			this.graph = new Graph(new TestGraphDatabaseFactory().newImpermanentDatabase(), dbPath, index);
+		} else {
+			this.graph = new Graph(new GraphDatabaseFactory().newEmbeddedDatabase(dbPath), dbPath, index);
+		}
+		
 	}
 
 	public void createIndex(String indexName) {

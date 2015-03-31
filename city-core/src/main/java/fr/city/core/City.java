@@ -43,7 +43,7 @@ public class City {
 	private static final String ROAD = "ROAD";
 	
 
-	private GraphEntry graphBuilding = new GraphEntry("TEST", BUILDING, ROAD);
+	private GraphEntry graphBuilding = new GraphEntry("TEST", false, BUILDING, ROAD);
 	private TerrainLayout terrainLayout;
 
 	private Map<String, Building> transportsMap = new HashMap<>();

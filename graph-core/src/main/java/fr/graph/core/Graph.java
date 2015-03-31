@@ -41,8 +41,8 @@ public class Graph {
 
 	private Map<String, Index<Node>> nodesIndexMap = new HashMap<>();
 
-	public Graph(String dbPath, String... nodesIndex) {
-		this.graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(dbPath);
+	public Graph(GraphDatabaseService graphDb, String dbPath, String... nodesIndex) {
+		this.graphDb = graphDb;
 		try (Transaction tx = graphDb.beginTx()) {
 			registerShutdownHook(graphDb);
 			for (String s : nodesIndex) {

@@ -10,8 +10,9 @@ Fourni
 Steps proposés
 --------------
 
-* Step 0 : Créer une route de 0,100 à 100,100 
-* Step 1 : 
+* Step 0 : Créer une unique route de (100,0) à (100,100) à l'aide de la function LifeTask.doSomeWork() et de la méthode city.createRoad(x, z, xD, zD);
+
+* Step 1 : Créer un
 
 Extensions possibles
 --------------------
