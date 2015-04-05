@@ -6,8 +6,7 @@ public class RoadView {
 	private int xa;
 	private int za;
 	private int xb;
-	private int zb;
-	private String name;	
+	private int zb;	
 	
 	public String getCommand() {
 		return command;
@@ -40,12 +39,5 @@ public class RoadView {
 	public void setZb(int zb) {
 		this.zb = zb;
 	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	
 
 }

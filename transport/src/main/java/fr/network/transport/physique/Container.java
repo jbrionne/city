@@ -1,37 +1,22 @@
 package fr.network.transport.physique;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import fr.network.transport.api.Coord2D;
+import fr.network.transport.api.TransportMove;
 import fr.network.transport.liaison.Product;
+import fr.network.transport.network.Address;
 
-public class Container extends Product {
+public class Container<T extends Product> implements Product {
 
-	private List<Product> productsContainer = new ArrayList<Product>();
+	private T product;
+	private TransportMove transportMove;
 	private Capacity capacity;
-	private Coord2D coordinates;
+	private Address coordinates;
+	private Address destination;
+	private Address finalDestination;
 	private String name;
+	private int volume = 30;
 
 	public Capacity getCapacity() {
 		return capacity;
-	}
-
-	public void addProductsContainer(Product p) {
-		// check capacity
-		productsContainer.add(p);
-	}
-
-	public List<Product> getProductsContainer() {
-		return new ArrayList<Product>(productsContainer);
-	}
-
-	public Coord2D getCoordinates() {
-		return coordinates;
-	}
-
-	public void setCoordinates(Coord2D coordinates) {
-		this.coordinates = coordinates;
 	}
 
 	public String getName() {
@@ -41,5 +26,59 @@ public class Container extends Product {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public Address getCoordinates() {
+		return coordinates;
+	}
+
+	public void setCoordinates(Address coordinates) {
+		this.coordinates = coordinates;
+	}
+
+	public Address getDestination() {
+		return destination;
+	}
+
+	public void setDestination(Address destination) {
+		this.destination = destination;
+	}
+
+	public Address getFinalDestination() {
+		return finalDestination;
+	}
+
+	public void setFinalDestination(Address finalDestination) {
+		this.finalDestination = finalDestination;
+	}
+
+	public T getProduct() {
+		return product;
+	}
+
+	public void setProduct(T product) {
+		this.product = product;
+	}
+
+	public void setCapacity(Capacity capacity) {
+		this.capacity = capacity;
+	}
+
+	@Override
+	public int getVolume() {
+		return volume;
+	}
+
+	public void setVolume(int volume) {
+		this.volume = volume;
+	}
+
+	public TransportMove getTransportMove() {
+		return transportMove;
+	}
+
+	public void setTransportMove(TransportMove transportMove) {
+		this.transportMove = transportMove;
+	}
+
 
 }

@@ -3,28 +3,22 @@ package fr.network.transport.physique;
 import java.util.Timer;
 
 import fr.network.transport.api.PhysicalMove;
-
+import fr.network.transport.api.TransportMove;
 
 public class Physical {
 
-	private PhysicalMove physicalMove;	
 	private TransportTask timerTask;
-	
-	public static final long PERIOD = 50;	
-	
-	public Physical(PhysicalMove physicalMove){
-		this.physicalMove = physicalMove;		
+
+	public static final long PERIOD = 50;
+
+	public Physical(PhysicalMove physicalMove) {
 		timerTask = new TransportTask(physicalMove);
 		Timer timer = new Timer(true);
 		timer.scheduleAtFixedRate(timerTask, 0, PERIOD);
 	}
-	
-	public void send(Cable cable, Container container) {
-		container.setCoordinates(cable.getOri());
-		String name = physicalMove.create(cable.getOri());	
-		container.setName(name);
-		timerTask.addContainer(container);		
+
+	public void send(String name, Container container) {		
+		timerTask.addContainer(container);
 	}
-	
-	
+
 }

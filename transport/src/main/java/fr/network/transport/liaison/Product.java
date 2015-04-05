@@ -1,9 +1,9 @@
 package fr.network.transport.liaison;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class Product {
-
-	Set<Product> products = new HashSet<>();
+/**
+ * Product to transport
+ */
+public interface Product {
+	
+	int getVolume();
 }

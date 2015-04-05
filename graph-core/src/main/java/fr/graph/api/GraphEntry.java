@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.graph.core.Graph;
+import fr.graph.core.GraphUtils;
+import fr.graph.core.RelTypes;
 
 public class GraphEntry {
 
@@ -19,22 +21,49 @@ public class GraphEntry {
 	private static final Logger LOG = LoggerFactory.getLogger(GraphEntry.class);
 
 	public GraphEntry(String dbPath, boolean test, String... index) {
-		if(test) {			
-			this.graph = new Graph(new TestGraphDatabaseFactory().newImpermanentDatabase(), dbPath, index);
+		// TODO make a configuration file !
+		if (test) {
+			this.graph = new Graph(
+					new TestGraphDatabaseFactory().newImpermanentDatabase(),
+					dbPath, index);
 		} else {
-			this.graph = new Graph(new GraphDatabaseFactory().newEmbeddedDatabase(dbPath), dbPath, index);
+			this.graph = new Graph(
+					new GraphDatabaseFactory().newEmbeddedDatabase(dbPath),
+					dbPath, index);
 		}
-		
+
 	}
 
 	public void createIndex(String indexName) {
 		graph.createIndex(indexName);
 	}
 
-	public void createRoad(String indexName, String name, int xA, int yA,
-			int xB, int yB) {
+	public boolean checkIfRoadExists(String indexName, int xA,
+			int yA, int xB, int yB) {
+		Node nA = graph.findEventXYNode(indexName, xA, yA);
+		Node nB = graph.findEventXYNode(indexName, xB, yB);
+		LOG.info(nA + " " + xA + "," + yA);
+		LOG.info(nB + " " + xB + "," + yB);
+		if (nA != null && nB != null) {
+			if (graph.hasRelationshipWithNode(nA, nB)) {
+				return true;
+			}			
+		}
+		return false;
+	}
+
+	public InfoRelationShip findRoad(String indexName, String name) {
+		Relationship r = graph.findRelationshipByName(RelTypes.EVENT, indexName, name);
+		if(r != null) {
+			return GraphUtils.getRelationShipInfoByName(name);
+		} else {
+			return null;
+		}
+	}
+
+	public void createRoad(String indexName, int xA, int yA, int xB, int yB) {
+
 		LOG.info("createRoad " + xA + "," + yA + "," + xB + "," + yB);
-		// TODO improve !!!!
 		if (xA != xB && yA != yB) {
 			throw new IllegalArgumentException(
 					"you must have xA == xB or yA == yB");
@@ -51,12 +80,12 @@ public class GraphEntry {
 			}
 		} else {
 			if (nA == null) {
-				nA = graph.createNode(indexName, name + xA + ":" + yA, xA, yA,
-						null);
+				nA = graph.createNode(indexName,
+						getNodeNameRoad(indexName, xA, yA), xA, yA, null);
 			}
 			if (nB == null) {
-				nB = graph.createNode(indexName, name + xB + ":" + yB, xB, yB,
-						null);
+				nB = graph.createNode(indexName,
+						getNodeNameRoad(indexName, xB, yB), xB, yB, null);
 			}
 		}
 
@@ -80,8 +109,7 @@ public class GraphEntry {
 				nmax = nA;
 			}
 
-			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY,
-					maxY);
+			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY, maxY);
 		} else if (yA == yB) {
 			minX = xA;
 			maxX = xB;
@@ -92,20 +120,19 @@ public class GraphEntry {
 				nmin = nB;
 				nmax = nA;
 			}
-			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX,
-					minY);
+			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX, minY);
 		} else {
 			throw new IllegalArgumentException(
 					"you must have xA == xB or yA == yB");
 		}
 	}
 
-	private void findNodeAndMakeNetworkY(String indexName,
-			Node nmin, Node nmax, int minX, int maxX, int minY) {
+	private void findNodeAndMakeNetworkY(String typeName, Node nmin, Node nmax,
+			int minX, int maxX, int minY) {
 		Node nX = nmin;
 		Node prev = nmin;
 		for (int i = minX + 1; i < maxX; i++) {
-			Node r = graph.findEventXYNode(indexName, i, minY);
+			Node r = graph.findEventXYNode(typeName, i, minY);
 			if (r != null) {
 				nX = r;
 				createRelation(prev, nX);
@@ -115,12 +142,12 @@ public class GraphEntry {
 		createRelation(nX, nmax);
 	}
 
-	private void findNodeAndMakeNetworkX(String indexName, 
-			Node nmin, Node nmax, int minX, int minY, int maxY) {
+	private void findNodeAndMakeNetworkX(String typeName, Node nmin, Node nmax,
+			int minX, int minY, int maxY) {
 		Node nX = nmin;
 		Node prev = nmin;
 		for (int i = minY + 1; i < maxY; i++) {
-			Node r = graph.findEventXYNode(indexName, minX, i);
+			Node r = graph.findEventXYNode(typeName, minX, i);
 			if (r != null) {
 				nX = r;
 				createRelation(prev, nX);
@@ -130,37 +157,22 @@ public class GraphEntry {
 		createRelation(nX, nmax);
 	}
 
-	private Node findOrCreateNode(String indexName, String name, int xB, int yB) {
-		Node nB = graph.findEventXYNode(indexName, xB, yB);
-		if (nB != null) {
-			LOG.info("Node already exist " + xB + yB);
-		} else {
-			nB = graph
-					.createNode(indexName, name + xB + ":" + yB, xB, yB, null);
-		}
-		return nB;
-	}
-
 	private void createRelation(Node nmin, Node nX) {
-		if (!graph.hasRelationshipWithNode(nmin, nX)) {
-			LOG.info("create relationship {} | {} ", nmin.toString(),
-					nX.toString());
-			graph.createRelationship(
-					nmin,
-					nX,
-					getCost((int) graph.getProperty(nmin, Graph.X),
-							(int) graph.getProperty(nmin, Graph.Y),
-							(int) graph.getProperty(nX, Graph.X),
-							(int) graph.getProperty(nX, Graph.Y)));
-
-		}
+		graph.createRelation(nmin, nX);		
 	}
 
-	public int getCost(final int xN, final int yN, final int xG, final int yG) {
-		int dx = xN - xG;
-		int dy = yN - yG;
-		return (int) Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+	public String getNodeName(String indexName, String id) {
+		return GraphUtils.getNodeName(indexName, id);
 	}
+
+	private String getNodeNameRoad(String indexName, int xA, int yA) {
+		return GraphUtils.getNodeNameRoad(indexName, xA, yA);
+	}
+
+	public String getRelationShipName(int x, int y, int xD, int yD) {
+		return GraphUtils.getRelationShipName(x, y, xD, yD);
+	}
+	
 
 	public void create(String indexName, String name, int x, int y, String json) {
 		graph.createNode(indexName, name, x, y, json);
@@ -203,13 +215,13 @@ public class GraphEntry {
 		return graph.find(indexName, name, property);
 	}
 
-	public Object findEventXYNodeProperty(String indexName, int x, int y,
+	public Object findEventXYNodeProperty(String typeName, int x, int y,
 			String property) {
-		return graph.findEventXYNodeProperty(indexName, x, y, property);
+		return graph.findEventXYNodeProperty(typeName, x, y, property);
 	}
 
-	public List<InfoNode> findPath(String indexName, String nameA, String nameB) {
-		return graph.findPath(indexName, nameA, nameB);
+	public List<InfoNode> findPath(String indexName, InfoAddress origin, InfoAddress destination) {
+		return graph.findPath(indexName, origin, destination);
 	}
 
 	public void shutdown() {

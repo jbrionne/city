@@ -1,24 +1,21 @@
 package fr.network.transport.application;
 
-import fr.network.transport.api.PhysicalMove;
+import fr.network.transport.api.TransportMove;
 import fr.network.transport.liaison.Product;
 import fr.network.transport.network.Address;
-import fr.network.transport.transport.Transport;
 
-public class Session {
-	
-	private Transport transport;
+public interface Session {
 
-	public Session(PhysicalMove physicalMove) {
-		transport = new Transport(physicalMove);
-	}
-
-	public void send(Address origin, Address destination, Product p) {
-		
-		//token
-		//synchronisation
-		
-		transport.send(origin, destination, p);
-	}
+	/**
+	 * Create and move a transport from origin to destination with a product
+	 * 
+	 * @param transportMove callback
+	 * @param origin
+	 *            coordinates of origin
+	 * @param destination
+	 *            coordinates of destination
+	 * @param p
+	 */
+	void send(TransportMove transportMove, String name, Address origin, Address destination, Product p);
 
 }

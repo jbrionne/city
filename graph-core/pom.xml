@@ -12,17 +12,14 @@
 	<artifactId>graph-core</artifactId>
 	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	
-	<properties>
-	 <neo4j.version>2.2.0</neo4j.version>
-	</properties>
+
+
 
 	<dependencies>
 
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j</artifactId>
-			<version>${neo4j.version}</version>
 		</dependency>
 
 
@@ -48,20 +45,19 @@
 			<artifactId>testng</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-kernel</artifactId>
-			<version>${neo4j.version}</version>
 			<type>test-jar</type>
-			<scope>test</scope>
+			<!-- compile because we use TestGraphDatabaseFactory ..refactor -->
+			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-io</artifactId>
-			<version>${neo4j.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>

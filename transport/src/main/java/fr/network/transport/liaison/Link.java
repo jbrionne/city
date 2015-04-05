@@ -1,7 +1,7 @@
 package fr.network.transport.liaison;
 
 import fr.network.transport.api.PhysicalMove;
-import fr.network.transport.physique.Cable;
+import fr.network.transport.api.TransportMove;
 import fr.network.transport.physique.Container;
 import fr.network.transport.physique.Physical;
 
@@ -19,8 +19,8 @@ public class Link {
 		physical = new Physical(physicalMove);
 	}
 
-	public void send(Cable cable, Container container) {		
-		physical.send(cable, container);
+	public void send(String name, Container container) {		
+		physical.send(name, container);
 	}
 
 }

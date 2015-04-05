@@ -2,7 +2,7 @@ package fr.city.core;
 
 public enum TypeBuilding {
 
-	HOUSE,
+	BUILDING,
 	TRANSPORT,
 	ROAD;
 }
