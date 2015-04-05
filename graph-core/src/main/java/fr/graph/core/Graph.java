@@ -18,12 +18,13 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.graph.api.InfoAddress;
 import fr.graph.api.InfoNode;
+import fr.graph.api.InfoRelationShip;
 
 public class Graph {
 
@@ -71,6 +72,17 @@ public class Graph {
 	}
 
 	public Node createNode(String indexName, String name, int x, int y, String json) {
+		
+		if(!name.startsWith(indexName)){
+			throw new IllegalArgumentException(
+					"name must start with index name " + indexName + " "+ name);
+		}
+		
+		if(name.equals(indexName)){
+			throw new IllegalArgumentException(
+					"name must start with index name but not equals to index name " + indexName + " "+ name);
+		}
+		
 		Node node = null;
 		try (Transaction tx = graphDb.beginTx()) {
 
@@ -111,11 +123,13 @@ public class Graph {
 
 	}
 	
-	public void createRelationship(Node nodeA, Node nodeB, int length) {
+	public Relationship createRelationship(Node nodeA, Node nodeB, int length) {
+		Relationship r = null;
 		try (Transaction tx = graphDb.beginTx()) {			
-			GraphUtils.createRelationship(nodeA, nodeB, LENGTH, length);
+			r = GraphUtils.createRelationship(nodeA, nodeB, LENGTH, length);
 			tx.success();
 		}
+		return r;
 	}
 
 	public boolean hasRelationshipWithNode(final Node nodeA, final Node nodeB) {
@@ -161,6 +175,15 @@ public class Graph {
 		}
 		return res;
 	}
+	
+	public Relationship findRelationshipByName(RelationshipType type, String indexName, String name) {
+		Relationship res = null;
+		try (Transaction tx = graphDb.beginTx()) {
+			res = GraphUtils.findRelationshipByName(graphDb, indexName, type, name);
+			tx.success();
+		}
+		return res;
+	}
 
 	public List<Relationship> findAllRelationship(RelationshipType type) {
 		List<Relationship> res = null;
@@ -186,23 +209,13 @@ public class Graph {
 		return res;
 	}
 
-	public Object findEventXYNodeProperty(String indexName, int x, int y, String property) {
-		Object res = null;
-		Index<Node> nodeIndex = nodesIndexMap.get(indexName);
-		if (nodeIndex == null) {
-			throw new IllegalArgumentException("The node index doesn't exist " + indexName);
-		}
-		res = GraphUtils.findEventXYNodeProperty(graphDb, nodeIndex, x, y, property);
-		return res;
+	public Object findEventXYNodeProperty(String typeName, int x, int y, String property) {		
+		return GraphUtils.findEventXYNodeProperty(graphDb, typeName, x, y, property);
 
 	}
 
-	public Node findEventXYNode(String indexName, int x, int y) {
-		Index<Node> nodeIndex = nodesIndexMap.get(indexName);
-		if (nodeIndex == null) {
-			throw new IllegalArgumentException("The node index doesn't exist " + indexName);
-		}
-		return GraphUtils.findEventXYNode(graphDb, nodeIndex, x, y);
+	public Node findEventXYNode(String typeName, int x, int y) {		
+		return GraphUtils.findEventXYNode(graphDb, typeName, x, y);
 	}
 	
 	public Object getProperty(Node node, String property) {	
@@ -260,39 +273,133 @@ public class Graph {
 		});
 	}
 
-	public List<InfoNode> findPath(String indexName, String nameA, String nameB) {
+	public List<InfoNode> findPath(String indexName, InfoAddress origin, InfoAddress destination) {
 		List<InfoNode> pathNames = new LinkedList<>();
-		try (Transaction tx = graphDb.beginTx()) {
-
-			Node nodeA = find(indexName, nameA);
-			Node nodeB = find(indexName, nameB);
-
-			WeightedPath path = findPath(nodeA, nodeB);
-			Iterator<PropertyContainer> i = path.iterator();
-			while (i.hasNext()) {
-				InfoNode infoNode = new InfoNode();
-				PropertyContainer p = i.next();
-				if(p.hasProperty(Graph.NAME)) {
-					infoNode.setName((String) p.getProperty(Graph.NAME));
-				}
-				if(p.hasProperty(Graph.X)) {
-					infoNode.setX((int) p.getProperty(Graph.X));
-				}
-				if(p.hasProperty(Graph.Y)) {
-					infoNode.setZ((int) p.getProperty(Graph.Y));
-				}
-				if(p.hasProperty(Graph.CUSTOM)) {
-					infoNode.setCustom(p.getProperty(Graph.CUSTOM));	
-				}
-				pathNames.add(infoNode);
-				
+		
+			
+			boolean isA = true;
+			boolean isB = true;
+			Node nodeA = findEventXYNode(indexName, origin.getX(), origin.getZ());
+			Node nodeB = findEventXYNode(indexName, destination.getX(), destination.getZ());
+			
+			if (nodeA == null) {
+				nodeA = createNode(indexName,
+						GraphUtils.getNodeNameRoad(indexName, origin.getX(), origin.getZ()), origin.getX(), origin.getZ(), null);
+				isA = false;
 			}
+			if (nodeB == null) {
+				nodeB = createNode(indexName,
+						GraphUtils.getNodeNameRoad(indexName, destination.getX(), destination.getZ()), destination.getX(), destination.getZ(), null);
+				isB = false;
+			}
+			
+			InfoRelationShip iA = GraphUtils.getRelationShipInfoByName(origin.getRoadName());
+			String nameNodeA = GraphUtils.getNodeNameRoad(indexName, iA.getX(), iA.getZ());	
+			String nameNodeABis = GraphUtils.getNodeNameRoad(indexName, iA.getxD(), iA.getzD());	
+			
+			InfoRelationShip iB = GraphUtils.getRelationShipInfoByName(destination.getRoadName());			
+			String nameNodeB = GraphUtils.getNodeNameRoad(indexName, iB.getX(), iB.getZ());
+			String nameNodeBBis = GraphUtils.getNodeNameRoad(indexName, iB.getxD(), iB.getzD());
+			
+			Node rA = find(indexName, nameNodeA);
+			if(rA == null){
+				throw new NullPointerException("No node for name " + indexName + " " + nameNodeA);
+			}
+			Node rABis = find(indexName, nameNodeABis);
+			if(rABis == null){
+				throw new NullPointerException("No node for name " + indexName + " " + nameNodeABis);
+			}
+			
+			Node rB = find(indexName, nameNodeB);			
+			if(rB == null){
+				throw new NullPointerException("No node for name " + indexName + " " + nameNodeB);
+			}
+			Node rBBis = find(indexName, nameNodeBBis);			
+			if(rBBis == null){
+				throw new NullPointerException("No node for name " + indexName + " " + nameNodeBBis);
+			}
+			
+			Relationship relA = null;
+			if(getCost(iA.getX(), iA.getZ(), origin.getX(), origin.getZ()) < getCost(iA.getxD(), iA.getzD(), origin.getX(), origin.getZ())) {
+				relA = createRelationship(rA, nodeA, getCost(iA.getX(), iA.getZ(), origin.getX(), origin.getZ()));
+			} else {
+				relA = createRelationship(rABis, nodeA, getCost(iA.getxD(), iA.getzD(), origin.getX(), origin.getZ()));
+			}
+			
+			Relationship relB = null;
+			if(getCost(iB.getX(), iB.getZ(), destination.getX(), destination.getZ()) < getCost(iB.getxD(), iB.getzD(), destination.getX(), destination.getZ())) {
+				relB = createRelationship(rB, nodeB, getCost(iB.getX(), iB.getZ(), destination.getX(), destination.getZ()));
+			} else {
+				relB = createRelationship(rBBis, nodeB, getCost(iB.getxD(), iB.getzD(), destination.getX(), destination.getZ()));
+			}
+			
+			Relationship relC = null;
+			if(origin.getRoadName().equals(destination.getRoadName())) {
+				relC = createRelationship(nodeA, nodeB, getCost(origin.getX(), origin.getZ(), destination.getX(), destination.getZ()));
+			}
+		
+			try (Transaction tx = graphDb.beginTx()) {	
+				WeightedPath path = findWeightedPath(nodeA, nodeB);
+				Iterator<PropertyContainer> i = path.iterator();
+				while (i.hasNext()) {
+					InfoNode infoNode = new InfoNode();
+					PropertyContainer p = i.next();
+					if(p.hasProperty(Graph.NAME)) {
+						infoNode.setName((String) p.getProperty(Graph.NAME));
+					}
+					if(p.hasProperty(Graph.X)) {
+						infoNode.setX((int) p.getProperty(Graph.X));
+					}
+					if(p.hasProperty(Graph.Y)) {
+						infoNode.setZ((int) p.getProperty(Graph.Y));
+					}
+					pathNames.add(infoNode);
+					
+				}			
+						
+				relA.delete();
+				relB.delete();	
+				if(relC != null) {
+					relC.delete();
+				}
+				
+				if(!isB){
+					nodeB.delete();
+				}
+				if(!isA){
+					nodeA.delete();	
+				}		
+				
+				
 			tx.success();
 		}
 		return pathNames;
 	}
+	
+	public void createRelation(Node nmin, Node nX) {
+		LOG.info("create relationship {} | {} ", nmin.toString(),
+				nX.toString());
+		if (!hasRelationshipWithNode(nmin, nX)) {
+			LOG.info("create relationship 2 {} | {} ", nmin.toString(),
+					nX.toString());
+			createRelationship(
+					nmin,
+					nX,
+					getCost((int) getProperty(nmin, Graph.X),
+							(int) getProperty(nmin, Graph.Y),
+							(int) getProperty(nX, Graph.X),
+							(int) getProperty(nX, Graph.Y)));
 
-	private WeightedPath findPath(Node nodeA, Node nodeB) {
+		}
+	}
+	
+	public int getCost(final int xN, final int yN, final int xG, final int yG) {
+		int dx = xN - xG;
+		int dy = yN - yG;
+		return (int) Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+	}
+
+	private WeightedPath findWeightedPath(Node nodeA, Node nodeB) {
 		WeightedPath path = null;
 		try (Transaction tx = graphDb.beginTx()) {
 			PathFinder<WeightedPath> astar = GraphAlgoFactory.aStar(PathExpanders.allTypesAndDirections(),

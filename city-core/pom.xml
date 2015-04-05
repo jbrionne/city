@@ -1,41 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>fr.city</groupId>
 		<artifactId>city-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>	
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
-	
+
+
 	<groupId>fr.city</groupId>
 	<artifactId>city-core</artifactId>
-	<version>0.0.1-SNAPSHOT</version>		
+	<version>0.0.1-SNAPSHOT</version>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>fr.map</groupId>
 			<artifactId>map-core</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>fr.graph</groupId>
 			<artifactId>graph-core</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>net.sf.dozer</groupId>
-			<artifactId>dozer</artifactId>
-		</dependency>
-		
+		</dependency>	
+
 		<dependency>
 			<groupId>fr.network</groupId>
 			<artifactId>transport</artifactId>
 		</dependency>
-		
-			<!-- JSON -->
+
+		<!-- JSON -->
 
 		<dependency>
 			<groupId>javax.json</groupId>
@@ -51,7 +46,7 @@
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 		</dependency>
-		
+
 		<!-- LOG -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -67,7 +62,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		
+
 
 		<!-- TEST -->
 
@@ -76,6 +71,26 @@
 			<artifactId>testng</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-kernel</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-io</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>

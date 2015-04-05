@@ -15,8 +15,6 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.dozer.DozerBeanMapper;
-import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,8 +58,14 @@ public class Cityboard {
 	
 	public void createBuilding(Building b, String command) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		Mapper mapperBean = new DozerBeanMapper();
-		BuildingView house = mapperBean.map(b, BuildingView.class);
+		
+		BuildingView house = new BuildingView();
+		house.setX(b.getX());
+		house.setY(b.getY());
+		house.setZ(b.getZ());
+		house.setName(b.getName());
+		house.setHeight(b.getHeight());				
+		
 		CoordinatesView c =	CityView.getNewXZ(house.getX(), house.getZ());
 		house.setX(c.getX());
 		house.setZ(c.getZ());
@@ -84,9 +88,15 @@ public class Cityboard {
 	}
 	
 	public void createRoad(Road r, String command) throws IOException {
+		LOG.info("Cityboard createRoad {}:{},{}:{}", r.getXa(),r.getZa(), r.getXb(), r.getZb());
 		ObjectMapper mapper = new ObjectMapper();
-		Mapper mapperBean = new DozerBeanMapper();
-		RoadView road = mapperBean.map(r, RoadView.class);
+		
+		RoadView road = new RoadView();
+		road.setXa(r.getXa());
+		road.setXb(r.getXb());
+		road.setZa(r.getZa());
+		road.setZb(r.getZb());				
+		
 		CoordinatesView ca =	CityView.getNewXZ(road.getXa(), road.getZa());
 		road.setXa(ca.getX());
 		road.setZa(ca.getZ());
@@ -143,8 +153,16 @@ public class Cityboard {
 
 	public void updateSun(Sun b) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		Mapper mapperBean = new DozerBeanMapper();
-		SunView sunview = mapperBean.map(b, SunView.class);
+		SunView sunview = new SunView();		
+		sunview.setAzimuth(b.getAzimuth());
+		sunview.setInclination(b.getInclination());
+		sunview.setLuminance(b.getLuminance());
+		sunview.setMieCoefficient(b.getMieCoefficient());
+		sunview.setMieDirectionalG(b.getMieDirectionalG());
+		sunview.setReileigh(b.getReileigh());
+		sunview.setTurbidity(b.getTurbidity());		
+		sunview.setSun(b.isSun());
+		
 		sunview.setCommand("updateSun");
 		StringWriter writer = new StringWriter();
 		try {

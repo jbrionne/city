@@ -1,20 +1,13 @@
-package fr.city.core;
+package fr.network.transport.network;
 
 
-public class Road {
+public class RoadInfo {
 
 	private int xa;
 	private int za;
 	private int xb;
 	private int zb;	
-	private String name;
 	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
 	public int getXa() {
 		return xa;
 	}
@@ -38,6 +31,11 @@ public class Road {
 	}
 	public void setZb(int zb) {
 		this.zb = zb;
+	}
+	@Override
+	public String toString() {
+		return "RoadInfo [xa=" + xa + ", za=" + za + ", xb=" + xb + ", zb="
+				+ zb + "]";
 	}	
 
 }

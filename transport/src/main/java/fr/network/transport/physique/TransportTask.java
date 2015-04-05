@@ -1,5 +1,6 @@
 package fr.network.transport.physique;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimerTask;
@@ -8,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.network.transport.api.PhysicalMove;
+import fr.network.transport.api.TransportMove;
+import fr.network.transport.application.SessionBase;
 
 public class TransportTask extends TimerTask {
 
@@ -22,8 +25,11 @@ public class TransportTask extends TimerTask {
 	private static final Logger LOG = LoggerFactory.getLogger(TransportTask.class);
 
 	public TransportTask(PhysicalMove physicalMove) {
-		this.physicalMove = physicalMove;		
+		this.physicalMove = physicalMove;	
 	}
+	
+	private List<Container> containersToRemove = new ArrayList<Container>();
+		
 
 	@Override
 	public void run() {
@@ -31,26 +37,61 @@ public class TransportTask extends TimerTask {
 		lastRefresh = lastRefresh + Physical.PERIOD;		
 		synchronized (monitor) {		
 			for (Container container : containers) {
-				
-				//TODO
-				
-				container.getCoordinates().setX((int) (container.getCoordinates().getX() + (int) (Math.round(Math.random() * 2 - 1))));
-				container.getCoordinates().setZ((int) (container.getCoordinates().getZ() + (int) (Math.round(Math.random() * 2 - 1))));
-				
-				if(container.getCoordinates().getX() < 0){
-					container.getCoordinates().setX(0);
+				if(container.getCoordinates().equals(container.getDestination())) {
+					containersToRemove.add(container);
+				} else {				
+					int dirX = 1;
+					if(container.getCoordinates().getX() > container.getDestination().getX()){
+						dirX = -1;
+					}
+					int dirZ = 1;
+					if(container.getCoordinates().getZ() > container.getDestination().getZ()){
+						dirZ = -1;
+					}
+					
+					if(container.getCoordinates().getX() != container.getDestination().getX()){
+						if(Math.abs(container.getCoordinates().getX() - container.getDestination().getX()) <= container.getCapacity().getVelocity()){
+							container.getCoordinates().setX((int) (container.getDestination().getX()));
+						} else {						
+							container.getCoordinates().setX((int) (container.getCoordinates().getX() + (int) (dirX * container.getCapacity().getVelocity())));
+						}
+					}
+					
+					if(container.getCoordinates().getZ() != container.getDestination().getZ()){
+						if(Math.abs(container.getCoordinates().getZ() - container.getDestination().getZ()) <= container.getCapacity().getVelocity()){
+							container.getCoordinates().setZ((int) (container.getDestination().getZ()));
+						} else {	
+							container.getCoordinates().setZ((int) (container.getCoordinates().getZ() + (int) (dirZ * container.getCapacity().getVelocity())));
+						}
+					}
+					
+					if(container.getCoordinates().getX() < physicalMove.getMin()){
+						container.getCoordinates().setX(physicalMove.getMin());
+					}
+					if(container.getCoordinates().getZ() < physicalMove.getMin()){
+						container.getCoordinates().setZ(physicalMove.getMin());
+					}
+					if(container.getCoordinates().getX() > physicalMove.getMax()){
+						container.getCoordinates().setX(physicalMove.getMax());
+					}
+					if(container.getCoordinates().getZ() > physicalMove.getMax()){
+						container.getCoordinates().setZ(physicalMove.getMax());
+					}
 				}
-				if(container.getCoordinates().getZ() < 0){
-					container.getCoordinates().setZ(0);
-				}
-				if(container.getCoordinates().getX() > 199){
-					container.getCoordinates().setX(199);
-				}
-				if(container.getCoordinates().getZ() > 199){
-					container.getCoordinates().setZ(199);
+			}
+			
+			for(Container container : containersToRemove){
+				if(container.getCoordinates().equals(container.getFinalDestination())){
+					container.getTransportMove().finish(container);
+					containers.remove(container);
+				} else {
+					SessionBase.getInstance(physicalMove).send(container.getTransportMove(), container.getName(), container.getDestination(), container.getFinalDestination(), container.getProduct());
+					containers.remove(container);
 				}
 				
 			}
+			containersToRemove.clear();
+			
 			if(lastRefresh >= physicalMove.getPeriodRefresh()){
 				lastRefresh = 0;
 				for (Container container : containers) {
