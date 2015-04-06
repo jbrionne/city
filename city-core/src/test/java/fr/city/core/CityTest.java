@@ -2,6 +2,7 @@ package fr.city.core;
 
 import static org.testng.Assert.assertEquals;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +41,7 @@ public class CityTest {
 
 	@Test
 	public void firstRoadBuildings() {
-		Road r = city.createRoad(100, 0, 100, 100);
+		Road r = city.createRoad(100, 0, 100, 100, Color.RED);
 		assertEquals(100, r.getXa());
 		assertEquals(0, r.getZa());
 		assertEquals(100, r.getXb());
@@ -49,19 +50,19 @@ public class CityTest {
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void firstDoubleRoadBuildings() {
-		city.createRoad(100, 0, 100, 100);
-		city.createRoad(100, 0, 100, 100);
+		city.createRoad(100, 0, 100, 100, Color.RED);
+		city.createRoad(100, 0, 100, 100, Color.RED);
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void createBuildings() {
-		Building b1 = city.createBuilding(10, 10, 10);
-		Building b2 = city.createBuilding(10, 10, 10);
+		Building b1 = city.createBuilding(10, 10, 10, CityColor.WHITE);
+		Building b2 = city.createBuilding(10, 10, 10, CityColor.WHITE);
 	}
 
 	public void updateBuildings() {
-		Building b1 = city.createBuilding(10, 10, 10);
-		Building b2 = city.updateOrCreateBuilding(10, 10, 20);
+		Building b1 = city.createBuilding(10, 10, 10, CityColor.WHITE);
+		Building b2 = city.updateOrCreateBuilding(10, 10, 20, CityColor.WHITE);
 		assertEquals(b1.getX(), b2.getX());
 		assertEquals(b1.getZ(), b2.getZ());
 

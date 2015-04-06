@@ -64,7 +64,8 @@ public class Cityboard {
 		house.setY(b.getY());
 		house.setZ(b.getZ());
 		house.setName(b.getName());
-		house.setHeight(b.getHeight());				
+		house.setHeight(b.getHeight());	
+		house.setColor(b.getColor());
 		
 		CoordinatesView c =	CityView.getNewXZ(house.getX(), house.getZ());
 		house.setX(c.getX());
@@ -95,7 +96,11 @@ public class Cityboard {
 		road.setXa(r.getXa());
 		road.setXb(r.getXb());
 		road.setZa(r.getZa());
-		road.setZb(r.getZb());				
+		road.setZb(r.getZb());	
+		road.setBlue(r.getBlue());
+		road.setGreen(r.getGreen());
+		road.setRed(r.getRed());
+		
 		
 		CoordinatesView ca =	CityView.getNewXZ(road.getXa(), road.getZa());
 		road.setXa(ca.getX());
