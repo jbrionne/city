@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import fr.city.core.Building;
 import fr.city.core.City;
+import fr.city.core.CityColor;
 import fr.city.core.PhysicalMoveCity;
 import fr.city.core.Road;
 
@@ -45,9 +46,16 @@ public class LifeTaskTest {
 			LOG.error("graph deletion", e);
 		}
 	}
+	
+	@Test
+	public void doubleSource() {
+		life.source(100, 0);
+		life.source(100, 0);
+	}
 
 	@Test
 	public void firstRoad() {
+		life.source(100, 0);
 		Road r = life.road(100, 0, 100, 100);
 		assertEquals(100, r.getXa());
 		assertEquals(0, r.getZa());
@@ -57,6 +65,7 @@ public class LifeTaskTest {
 
 	@Test
 	public void firstDoubleRoad() {
+		life.source(100, 0);
 		Road r1 = life.road(100, 0, 100, 100);
 		Road r2 = life.road(100, 0, 100, 100);
 		assertEquals(r1.getXa(), r2.getXa());
@@ -88,18 +97,19 @@ public class LifeTaskTest {
 
 	@Test
 	public void firstTransport() {
-		Building t = life.transport(100, 0);
+		Building t = life.transport(100, 0, CityColor.YELLOW);
 		assertEquals(100, t.getX());
 		assertEquals(0, t.getZ());
 	}
 
 	@Test
 	public void moveTransport() throws InterruptedException {
+		life.source(100, 0);
 		Building b = life.building(99, 90, 0);
 		Road r = life.road(100, 0, 100, 100);
 		int xD = 100;
 		int zD = 90;
-		Building t = life.transport(100, 0);
+		Building t = life.transport(100, 0, CityColor.YELLOW);
 		TransportMovePop tm = new TransportMovePop(city, b.getX(), b.getZ());
 		life.moveTransport(tm, t.getName(), 100, 0, r.getName(), xD, zD,
 				r.getName());		

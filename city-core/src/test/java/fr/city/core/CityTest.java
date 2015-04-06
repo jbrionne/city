@@ -41,6 +41,7 @@ public class CityTest {
 
 	@Test
 	public void firstRoadBuildings() {
+		city.createSource(100, 0);
 		Road r = city.createRoad(100, 0, 100, 100, Color.RED);
 		assertEquals(100, r.getXa());
 		assertEquals(0, r.getZa());
@@ -50,6 +51,7 @@ public class CityTest {
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void firstDoubleRoadBuildings() {
+		city.createSource(100, 0);
 		city.createRoad(100, 0, 100, 100, Color.RED);
 		city.createRoad(100, 0, 100, 100, Color.RED);
 	}

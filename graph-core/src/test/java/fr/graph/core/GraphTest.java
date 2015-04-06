@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import fr.graph.api.GraphEntry;
+import fr.graph.api.InfoAddress;
 import fr.graph.api.InfoNode;
 
 public class GraphTest {
@@ -21,18 +22,27 @@ public class GraphTest {
 	@Test
 	public void f() {
 
-//		GraphEntry graph = new GraphEntry("TEST", true, INDEXNAME);
-//
-//		
+//		GraphEntry graph = new GraphEntry("TEST", true, INDEXNAME);		
 //		
 //		graph.create(INDEXNAME, graph.getNodeName(INDEXNAME, "A"), 0, 0, null);
 //		graph.create(INDEXNAME, graph.getNodeName(INDEXNAME, "B"), 7, 0, null);
 //		graph.create(INDEXNAME, graph.getNodeName(INDEXNAME, "C"), 2, 1, null);
-//		graph.createRelationship(INDEXNAME, graph.getNodeName(INDEXNAME, "A"), graph.getNodeName(INDEXNAME, "C"), 2);
-//		graph.createRelationship(INDEXNAME, graph.getNodeName(INDEXNAME, "C"), graph.getNodeName(INDEXNAME, "B"), 3);
-//		graph.createRelationship(INDEXNAME, graph.getNodeName(INDEXNAME, "A"), graph.getNodeName(INDEXNAME, "B"), 10);
+//		
+//		graph.createRelationship(INDEXNAME, graph.getNodeName(INDEXNAME, "A"), graph.getNodeName(INDEXNAME, "C"), 2, "");
+//		graph.createRelationship(INDEXNAME, graph.getNodeName(INDEXNAME, "C"), graph.getNodeName(INDEXNAME, "B"), 3, "");
+//		graph.createRelationship(INDEXNAME, graph.getNodeName(INDEXNAME, "A"), graph.getNodeName(INDEXNAME, "B"), 10, "");
 //
-//		List<InfoNode> infos = graph.findPath(INDEXNAME, graph.getNodeName(INDEXNAME, "A"), graph.getNodeName(INDEXNAME, "B"));
+//		InfoAddress infoA = new InfoAddress();
+//		infoA.setRoadName(graph.getRelationShipName(1, 1, 2, 2));
+//		infoA.setX(1);
+//		infoA.setZ(1);
+//		
+//		InfoAddress infoB = new InfoAddress();
+//		infoB.setRoadName(graph.getRelationShipName(1, 1, 2, 2));
+//		infoB.setX(1);
+//		infoB.setZ(1);
+//		
+//		List<InfoNode> infos = graph.findPath(INDEXNAME, infoA, infoB);
 //		for(InfoNode info : infos){
 //			LOG.info("{} {} {}", info.getName(), info.getX(), info.getZ());
 //		}

@@ -42,17 +42,17 @@ public class LifeTask extends TimerTask {
 	}
 
 	private void doSomeWork() {
-		Road r = road(100, 0, 100, 100);	
-		Road r2 = road(100, 100, 50, 100);		
-		Building b = transport(100, 0);	
-		Building b2 = transport(100, 0);
-		
-		moveTransport(new TransportMovePop(city, 99, 90), b.getName(), 100, 0, r.getName(),
-				100, 90, r.getName());
-		
-		moveTransport(new TransportMovePop(city, 70, 101), b2.getName(), 100, 0, r.getName(),
-				70, 100, r2.getName());
-		
+		source(100, 0);
+		Road r = road(100, 0, 100, 100);
+		Building b = transport(100, 0, CityColor.BLUE);
+		moveTransport(new TransportMovePop(city, 99, 90), b.getName(), 100, 0,
+				r.getName(), 100, 90, r.getName());
+	}
+
+	public void source(int x, int z) {
+		if (!city.checkIfSourceExists(x, z)) {
+			city.createSource(x, z);
+		}
 	}
 
 	public Road road(int x, int z, int xD, int zD) {
@@ -69,8 +69,8 @@ public class LifeTask extends TimerTask {
 		return city.updateOrCreateBuilding(x, z, height, CityColor.WHITE);
 	}
 
-	public Building transport(int x, int z) {
-		return city.createTransport(new Coordinates(x, z), CityColor.WHITE);
+	public Building transport(int x, int z, String color) {
+		return city.createTransport(new Coordinates(x, z), color);
 	}
 
 	public void moveTransport(TransportMove transportMove, String name, int x,
