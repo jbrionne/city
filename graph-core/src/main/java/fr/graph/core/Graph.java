@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.neo4j.graphalgo.CommonEvaluators;
 import org.neo4j.graphalgo.EstimateEvaluator;
@@ -321,7 +320,8 @@ public class Graph {
 	}
 
 	public List<InfoNode> findPath(String indexName, InfoAddress origin,
-			InfoAddress destination) {
+			InfoAddress destination) {			
+		
 		List<InfoNode> pathNames = new LinkedList<>();
 
 		Node nodeA = null;
@@ -371,7 +371,8 @@ public class Graph {
 				if (rBBis == null) {
 					throw new NullPointerException("No node for name "
 							+ indexName + " " + nameNodeBBis);
-				}
+				}				
+				
 
 				// Node of the origin and destination
 				nodeA = createNode(
@@ -480,6 +481,7 @@ public class Graph {
 		int index = 0;
 		int size = pathNames.size();
 		for (InfoNode i : pathNames) {
+			LOG.info("filterPath " + i.toString());
 			if (i.getName() != null && i.getName().startsWith(indexName)) {
 				InfoNode info = new InfoNode();
 				info.setCustom(i.getCustom());
@@ -502,11 +504,9 @@ public class Graph {
 		return lst;
 	}
 
-	public void createRelation(Node nmin, Node nX, String json) {
-		LOG.info("create relationship {} | {} ", nmin.toString(), nX.toString());
+	public void createRelation(Node nmin, Node nX, String json) {	
 		if (!hasRelationshipWithNode(nmin, nX)) {
-			LOG.info("create relationship 2 {} | {} ", nmin.toString(),
-					nX.toString());
+			LOG.info("create relationship {} | {} ", nmin.toString(), nX.toString());
 			createRelationship(
 					nmin,
 					nX,

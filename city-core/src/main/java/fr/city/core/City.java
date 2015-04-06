@@ -14,15 +14,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.graph.api.GraphEntry;
 import fr.graph.api.InfoAddress;
 import fr.graph.api.InfoNode;
-import fr.graph.api.InfoRelationShip;
 import fr.graph.core.Graph;
 import fr.graph.core.RelTypes;
 import fr.network.transport.api.Coord2D;
@@ -79,9 +76,10 @@ public class City {
 		}
 	}
 
-	public List<Road> getAllRoads() {		
+	public List<Road> getAllRoads() {
 		List<Road> lstBs = new ArrayList<>();
-		List<Object> allBuildings = graphBuilding.findAllRelationProperty(RelTypes.EVENT);
+		List<Object> allBuildings = graphBuilding
+				.findAllRelationProperty(RelTypes.EVENT);
 		ObjectMapper mapper = new ObjectMapper();
 		for (Object o : allBuildings) {
 			Road b = null;
@@ -262,13 +260,14 @@ public class City {
 	 * @return the road
 	 */
 	public Road findRoad(int x, int z, int xD, int zD) {
-		if (graphBuilding.checkIfRoadExists(ROAD.name(), x, z, xD, zD)) {			
-			return findRoadByName(graphBuilding.getRelationShipName(x, z, xD, zD));
+		if (graphBuilding.checkIfRoadExists(ROAD.name(), x, z, xD, zD)) {
+			return findRoadByName(graphBuilding.getRelationShipName(x, z, xD,
+					zD));
 		}
 		return null;
 	}
 
-	public Road findRoadByName(String name) {		
+	public Road findRoadByName(String name) {
 		Object jsonBuilding = graphBuilding.findRoad(ROAD.name(), name);
 		Road b = null;
 		if (jsonBuilding != null) {
@@ -305,6 +304,33 @@ public class City {
 	}
 
 	/**
+	 * Create a source. You can connect a road to a source
+	 * @param x coordinate x start point
+	 * @param z coordinate z start point
+	 */
+	public void createSource(int x, int z) {
+		if (x < 0 || z < 0 || x > max || z > max) {
+			throw new IllegalArgumentException("The range is  0 to "
+					+ (max - 1) + " " + x + " " + z);
+		}
+
+		graphBuilding.createSource(ROAD.name(), x, z);
+	}
+	
+	/**
+	 * Check if a source exists.
+	 * @param x coordinate x start point
+	 * @param z coordinate z start point
+	 */
+	public boolean checkIfSourceExists(int x, int z) {
+		if (x < 0 || z < 0 || x > max || z > max) {
+			throw new IllegalArgumentException("The range is  0 to "
+					+ (max - 1) + " " + x + " " + z);
+		}
+		return graphBuilding.checkIfSourceExists(ROAD.name(), x, z);
+	}
+
+	/**
 	 * Create a road x, z, xD, zD [0, max - 1] x == xD or z == zD
 	 * 
 	 * @param x
@@ -316,7 +342,7 @@ public class City {
 	 * @param zD
 	 *            coordinate z end point
 	 * @param color
-	 *            Color of the road           
+	 *            Color of the road
 	 * @return a road
 	 */
 	public Road createRoad(int x, int z, int xD, int zD, Color color) {
@@ -514,9 +540,9 @@ public class City {
 	 * 
 	 * @param coord
 	 *            coordinates of the transport
-	 *            
+	 * 
 	 * @param color
-	 * 		use CityColor or color hex like  "0xffffff"
+	 *            use CityColor or color hex like "0xffffff"
 	 * @return a building which is a transport
 	 */
 	public Building createTransport(Coord2D coord, String color) {

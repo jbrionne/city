@@ -55,6 +55,25 @@ public class GraphEntry {
 	public Object findRoad(String indexName, String name) {
 		return graph.findRelationshipByNameProperty(RelTypes.EVENT, indexName, name, Graph.CUSTOM);		
 	}
+	
+	public void createSource(String indexName, int xA, int yA) {
+		Node nA = graph.findEventXYNode(indexName, xA, yA);
+		if (nA != null) {
+			throw new IllegalArgumentException("the source already exist ");			
+		} else {
+			nA = graph.createNode(indexName,
+					getNodeNameRoad(indexName, xA, yA), xA, yA, null);
+		}		
+	}
+	
+	public boolean checkIfSourceExists(String indexName, int xA, int yA) {
+		Node nA = graph.findEventXYNode(indexName, xA, yA);
+		if (nA != null) {
+			return	true;		
+		} else {
+			return false;
+		}		
+	}
 
 	public void createRoad(String indexName, int xA, int yA, int xB, int yB, String json) {
 
@@ -74,6 +93,10 @@ public class GraphEntry {
 						+ xA + "," + yA + "," + xB + "," + yB);
 			}
 		} else {
+			if(nA == null && nB == null){					
+				throw new IllegalArgumentException("A road must be connect to an another road endpoint or a source"
+						+ xA + "," + yA + "," + xB + "," + yB);
+			}
 			if (nA == null) {
 				nA = graph.createNode(indexName,
 						getNodeNameRoad(indexName, xA, yA), xA, yA, null);
@@ -83,73 +106,8 @@ public class GraphEntry {
 						getNodeNameRoad(indexName, xB, yB), xB, yB, null);
 			}
 		}
-
-		Node nmin = nA;
-		Node nmax = nB;
-
-		int minX = xA;
-		int maxX = xA;
-
-		int minY = yA;
-		int maxY = yA;
-
-		if (xA == xB) {
-			minY = yA;
-			maxY = yB;
-			if (yA > yB) {
-				minY = yB;
-				maxY = yA;
-
-				nmin = nB;
-				nmax = nA;
-			}
-
-			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY, maxY, json);
-		} else if (yA == yB) {
-			minX = xA;
-			maxX = xB;
-			if (xA > xB) {
-				minX = xB;
-				maxX = xA;
-
-				nmin = nB;
-				nmax = nA;
-			}
-			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX, minY, json);
-		} else {
-			throw new IllegalArgumentException(
-					"you must have xA == xB or yA == yB");
-		}
-	}
-
-	private void findNodeAndMakeNetworkY(String typeName, Node nmin, Node nmax,
-			int minX, int maxX, int minY, String json) {
-		Node nX = nmin;
-		Node prev = nmin;
-		for (int i = minX + 1; i < maxX; i++) {
-			Node r = graph.findEventXYNode(typeName, i, minY);
-			if (r != null) {
-				nX = r;
-				createRelation(prev, nX, json);
-				prev = nX;
-			}
-		}
-		createRelation(nX, nmax, json);
-	}
-
-	private void findNodeAndMakeNetworkX(String typeName, Node nmin, Node nmax,
-			int minX, int minY, int maxY, String json) {
-		Node nX = nmin;
-		Node prev = nmin;
-		for (int i = minY + 1; i < maxY; i++) {
-			Node r = graph.findEventXYNode(typeName, minX, i);
-			if (r != null) {
-				nX = r;
-				createRelation(prev, nX, json);
-				prev = nX;
-			}
-		}
-		createRelation(nX, nmax, json);
+		
+		createRelation(nA, nB, json);
 	}
 
 	private void createRelation(Node nmin, Node nX, String json) {
