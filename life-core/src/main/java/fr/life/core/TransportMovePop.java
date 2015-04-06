@@ -1,10 +1,13 @@
 package fr.life.core;
 
+import java.awt.Color;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.city.core.Building;
 import fr.city.core.City;
+import fr.city.core.CityColor;
 import fr.network.transport.api.TransportMove;
 import fr.network.transport.physique.Container;
 
@@ -32,7 +35,7 @@ public class TransportMovePop implements TransportMove<PopProduct> {
 		if(b != null){
 			height = b.getHeight();
 		}
-		city.updateOrCreateBuilding(x, z, height + o.getNbPerson());		
+		city.updateOrCreateBuilding(x, z, height + o.getNbPerson(), CityColor.RED);		
 		city.removeTransport(container.getName());
 	}
 

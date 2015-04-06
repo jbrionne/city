@@ -31,5 +31,9 @@ public class InfoNode {
 	public void setCustom(Object custom) {
 		this.custom = custom;
 	}
+	@Override
+	public String toString() {
+		return "InfoNode [name=" + name + ", x=" + x + ", z=" + z + "]";
+	}
 	
 }

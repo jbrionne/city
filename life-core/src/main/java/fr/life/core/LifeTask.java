@@ -1,5 +1,6 @@
 package fr.life.core;
 
+import java.awt.Color;
 import java.util.Date;
 import java.util.TimerTask;
 
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.city.core.Building;
 import fr.city.core.City;
+import fr.city.core.CityColor;
 import fr.city.core.Coordinates;
 import fr.city.core.Road;
 import fr.network.transport.api.TransportMove;
@@ -41,21 +43,22 @@ public class LifeTask extends TimerTask {
 
 	private void doSomeWork() {
 		Road r = road(100, 0, 100, 100);	
-		Road r2 = road(100, 100, 50, 100);
+		Road r2 = road(100, 100, 50, 100);		
 		Building b = transport(100, 0);	
-		Building b2 = transport(100, 0);	
+		Building b2 = transport(100, 0);
+		
 		moveTransport(new TransportMovePop(city, 99, 90), b.getName(), 100, 0, r.getName(),
 				100, 90, r.getName());
 		
-//		moveTransport(new TransportMovePop(city, 70, 101), b2.getName(), 100, 0, r.getName(),
-//				70, 100, r2.getName());
+		moveTransport(new TransportMovePop(city, 70, 101), b2.getName(), 100, 0, r.getName(),
+				70, 100, r2.getName());
 		
 	}
 
 	public Road road(int x, int z, int xD, int zD) {
 		if (!city.checkIfRoadExists(x, z, xD, zD)) {
 			LOG.info("new road");
-			return city.createRoad(x, z, xD, zD);
+			return city.createRoad(x, z, xD, zD, Color.RED);
 		} else {
 			LOG.info("findRoad");
 			return city.findRoad(x, z, xD, zD);
@@ -63,11 +66,11 @@ public class LifeTask extends TimerTask {
 	}
 
 	public Building building(int x, int z, int height) {
-		return city.updateOrCreateBuilding(x, z, height);
+		return city.updateOrCreateBuilding(x, z, height, CityColor.WHITE);
 	}
 
 	public Building transport(int x, int z) {
-		return city.createTransport(new Coordinates(x, z));
+		return city.createTransport(new Coordinates(x, z), CityColor.WHITE);
 	}
 
 	public void moveTransport(TransportMove transportMove, String name, int x,

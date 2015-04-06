@@ -8,6 +8,10 @@ public class Road {
 	private int xb;
 	private int zb;	
 	private String name;
+	private int red;
+	private int green;
+	private int blue;
+	
 	
 	public String getName() {
 		return name;
@@ -38,6 +42,24 @@ public class Road {
 	}
 	public void setZb(int zb) {
 		this.zb = zb;
+	}
+	public int getRed() {
+		return red;
+	}
+	public void setRed(int red) {
+		this.red = red;
+	}
+	public int getGreen() {
+		return green;
+	}
+	public void setGreen(int green) {
+		this.green = green;
+	}
+	public int getBlue() {
+		return blue;
+	}
+	public void setBlue(int blue) {
+		this.blue = blue;
 	}	
 
 }

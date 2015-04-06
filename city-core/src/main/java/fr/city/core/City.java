@@ -4,6 +4,7 @@ import static fr.city.core.TypeBuilding.BUILDING;
 import static fr.city.core.TypeBuilding.ROAD;
 import static fr.city.core.TypeBuilding.TRANSPORT;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -78,24 +79,23 @@ public class City {
 		}
 	}
 
-	public List<Road> getAllRoads() {
-		// warning double
+	public List<Road> getAllRoads() {		
 		List<Road> lstBs = new ArrayList<>();
-		List<Relationship> allRoads = graphBuilding
-				.findAllRelation(RelTypes.EVENT);
-		for (Relationship n : allRoads) {
-			Node start = graphBuilding.getStartNode(n);
-			LOG.info("start {}", start.toString());
-			Node end = graphBuilding.getEndNode(n);
-			LOG.info("end {}", end.toString());
-			Road r = new Road();
-			r.setXa((int) graphBuilding.getProperty(start, Graph.X));
-			r.setZa((int) graphBuilding.getProperty(start, Graph.Y));
-			r.setXb((int) graphBuilding.getProperty(end, Graph.X));
-			r.setZb((int) graphBuilding.getProperty(end, Graph.Y));
-			lstBs.add(r);
+		List<Object> allBuildings = graphBuilding.findAllRelationProperty(RelTypes.EVENT);
+		ObjectMapper mapper = new ObjectMapper();
+		for (Object o : allBuildings) {
+			Road b = null;
+			try {
+				b = mapper.readValue((String) o, Road.class);
+			} catch (IOException e) {
+				LOG.error("convert object to Json", e);
+			}
+			if (b == null) {
+				throw new IllegalArgumentException("Building is null");
+			}
+			lstBs.add(b);
 		}
-		LOG.info("getAllRoads size " + allRoads.size());
+		LOG.info("getAllRoads size " + allBuildings.size());
 		return lstBs;
 	}
 
@@ -148,28 +148,27 @@ public class City {
 			throw new IllegalArgumentException(
 					"destination must not be null or empty");
 		}
-		
+
 		InfoAddress iA = new InfoAddress();
 		iA.setRoadName(origin.getRoadName());
 		iA.setX(origin.getX());
 		iA.setZ(origin.getZ());
-		
-		
+
 		InfoAddress iB = new InfoAddress();
 		iB.setRoadName(destination.getRoadName());
 		iB.setX(destination.getX());
-		iB.setZ(destination.getZ());		
-		
+		iB.setZ(destination.getZ());
+
 		List<PathInfo> path = new ArrayList<>();
-		List<InfoNode> infonodes = graphBuilding.findPath(ROAD.name(),
-				iA, iB);
+		List<InfoNode> infonodes = graphBuilding.findPath(ROAD.name(), iA, iB);
+
 		for (InfoNode i : infonodes) {
-			if(i.getName() != null && i.getName().startsWith(ROAD.name())) {
-				PathInfo pathInfo = new PathInfo();
-				pathInfo.setX(i.getX());
-				pathInfo.setZ(i.getZ());
-				path.add(pathInfo);
-			}
+			LOG.info("InfoNode " + i);
+			PathInfo pathInfo = new PathInfo();
+			pathInfo.setX(i.getX());
+			pathInfo.setZ(i.getZ());
+			pathInfo.setRoadName(i.getName());
+			path.add(pathInfo);
 		}
 		return path;
 	}
@@ -203,9 +202,11 @@ public class City {
 	 *            coordinate z start point
 	 * @param height
 	 *            the height must be positive
+	 * @param color
+	 *            use CityColor or color hex like "0xffffff"
 	 * @return the building
 	 */
-	public Building createBuilding(int x, int z, int height) {
+	public Building createBuilding(int x, int z, int height, String color) {
 		if (x < 0 || z < 0 || x > max || z > max) {
 			throw new IllegalArgumentException("The range is  0 to "
 					+ (max - 1));
@@ -225,6 +226,7 @@ public class City {
 		b.setHeight(height);
 		b.setName(graphBuilding.getNodeName(BUILDING.name(),
 				String.valueOf(id.getAndIncrement())));
+		b.setColor(color);
 
 		int y = terrainLayout.getHeight(x, z);
 
@@ -260,33 +262,29 @@ public class City {
 	 * @return the road
 	 */
 	public Road findRoad(int x, int z, int xD, int zD) {
-		if (graphBuilding.checkIfRoadExists(ROAD.name(), x, z, xD,
-				zD)) {
-			Road r = new Road();
-			r.setXa(x);
-			r.setZa(z);
-			r.setXb(xD);
-			r.setZb(zD);
-			r.setName(graphBuilding.getRelationShipName(x, z, xD, zD));
-			return r;
+		if (graphBuilding.checkIfRoadExists(ROAD.name(), x, z, xD, zD)) {			
+			return findRoadByName(graphBuilding.getRelationShipName(x, z, xD, zD));
 		}
 		return null;
 	}
 
-	public Road findRoadByName(String name) {
-		InfoRelationShip o = graphBuilding.findRoad(ROAD.name(), name);
-		if (o != null) {
-			Road r = new Road();
-			r.setName(o.getName());
-			r.setXa(o.getX());
-			r.setXb(o.getxD());
-			r.setZa(o.getZ());
-			r.setZb(o.getzD());
-			r.setName(graphBuilding.getRelationShipName(o.getX(), o.getZ(), o.getxD(), o.getzD()));
-			return r;
-		} else {
-			return null;
+	public Road findRoadByName(String name) {		
+		Object jsonBuilding = graphBuilding.findRoad(ROAD.name(), name);
+		Road b = null;
+		if (jsonBuilding != null) {
+			LOG.debug("find " + (String) jsonBuilding);
+			ObjectMapper mapper = new ObjectMapper();
+
+			try {
+				b = mapper.readValue((String) jsonBuilding, Road.class);
+			} catch (IOException e) {
+				LOG.error("convert object to Json", e);
+			}
+			if (b == null) {
+				throw new IllegalArgumentException("Road is null");
+			}
 		}
+		return b;
 	}
 
 	/**
@@ -303,8 +301,7 @@ public class City {
 	 * @return boolean true if the road exists
 	 */
 	public boolean checkIfRoadExists(int x, int z, int xD, int zD) {
-		return graphBuilding.checkIfRoadExists(ROAD.name(), x, z,
-				xD, zD);
+		return graphBuilding.checkIfRoadExists(ROAD.name(), x, z, xD, zD);
 	}
 
 	/**
@@ -318,9 +315,11 @@ public class City {
 	 *            coordinate x end point
 	 * @param zD
 	 *            coordinate z end point
+	 * @param color
+	 *            Color of the road           
 	 * @return a road
 	 */
-	public Road createRoad(int x, int z, int xD, int zD) {
+	public Road createRoad(int x, int z, int xD, int zD, Color color) {
 		if (x < 0 || z < 0 || x > max || z > max) {
 			throw new IllegalArgumentException("The range is  0 to "
 					+ (max - 1) + " " + x + " " + z);
@@ -338,6 +337,9 @@ public class City {
 		r.setZa(z);
 		r.setXb(xD);
 		r.setZb(zD);
+		r.setBlue(color.getBlue());
+		r.setGreen(color.getGreen());
+		r.setRed(color.getRed());
 		r.setName(graphBuilding.getRelationShipName(x, z, xD, zD));
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -348,7 +350,7 @@ public class City {
 			LOG.error("convert object to Json", e);
 		}
 
-		graphBuilding.createRoad(ROAD.name(), x, z, xD, zD);
+		graphBuilding.createRoad(ROAD.name(), x, z, xD, zD, writer.toString());
 
 		observerCity.createRoad(r);
 		return r;
@@ -363,9 +365,12 @@ public class City {
 	 *            coordinate z start point
 	 * @param height
 	 *            the height must be positive
+	 * @param color
+	 *            use CityColor or color hex like "0xffffff"
 	 * @return the building
 	 */
-	public Building updateOrCreateBuilding(int x, int z, int height) {
+	public Building updateOrCreateBuilding(int x, int z, int height,
+			String color) {
 		if (x < 0 || z < 0 || x > max || z > max) {
 			throw new IllegalArgumentException("The range is  0 to "
 					+ (max - 1) + " " + x + " " + z);
@@ -390,11 +395,12 @@ public class City {
 			}
 			removeBuilding(b);
 		}
-		return createBuilding(x, z, height);
+		return createBuilding(x, z, height, color);
 	}
-	
+
 	/**
 	 * Find a building with coordinates
+	 * 
 	 * @param x
 	 *            coordinate x start point
 	 * @param z
@@ -405,14 +411,14 @@ public class City {
 		if (x < 0 || z < 0 || x > max || z > max) {
 			throw new IllegalArgumentException("The range is  0 to "
 					+ (max - 1) + " " + x + " " + z);
-		}		
+		}
 		Object jsonBuilding = graphBuilding.findEventXYNodeProperty(
 				BUILDING.name(), x, z, Graph.CUSTOM);
 		Building b = null;
 		if (jsonBuilding != null) {
 			LOG.debug("find " + (String) jsonBuilding);
 			ObjectMapper mapper = new ObjectMapper();
-			
+
 			try {
 				b = mapper.readValue((String) jsonBuilding, Building.class);
 			} catch (IOException e) {
@@ -467,6 +473,7 @@ public class City {
 		br.setX(b.getX());
 		br.setY(b.getY());
 		br.setZ(b.getZ());
+		br.setColor(b.getColor());
 		return br;
 	}
 
@@ -507,9 +514,12 @@ public class City {
 	 * 
 	 * @param coord
 	 *            coordinates of the transport
+	 *            
+	 * @param color
+	 * 		use CityColor or color hex like  "0xffffff"
 	 * @return a building which is a transport
 	 */
-	public Building createTransport(Coord2D coord) {
+	public Building createTransport(Coord2D coord, String color) {
 		if (coord == null) {
 			throw new IllegalArgumentException("coord must not be null");
 		}
@@ -525,6 +535,7 @@ public class City {
 		b.setHeight(5);
 		int y = terrainLayout.getHeight(coord.getX(), coord.getZ());
 		b.setY(y);
+		b.setColor(color);
 
 		b.setName(graphBuilding.getNodeName(TRANSPORT.name(),
 				String.valueOf(id.getAndIncrement())));

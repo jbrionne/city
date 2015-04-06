@@ -12,6 +12,7 @@ public class Building implements Serializable {
 	private int height;	
 	private int y;
 	private String name;	
+	private String color;
 	
 	public int getX() {
 		return x;
@@ -44,6 +45,12 @@ public class Building implements Serializable {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
 	}	
 
 }

@@ -52,16 +52,11 @@ public class GraphEntry {
 		return false;
 	}
 
-	public InfoRelationShip findRoad(String indexName, String name) {
-		Relationship r = graph.findRelationshipByName(RelTypes.EVENT, indexName, name);
-		if(r != null) {
-			return GraphUtils.getRelationShipInfoByName(name);
-		} else {
-			return null;
-		}
+	public Object findRoad(String indexName, String name) {
+		return graph.findRelationshipByNameProperty(RelTypes.EVENT, indexName, name, Graph.CUSTOM);		
 	}
 
-	public void createRoad(String indexName, int xA, int yA, int xB, int yB) {
+	public void createRoad(String indexName, int xA, int yA, int xB, int yB, String json) {
 
 		LOG.info("createRoad " + xA + "," + yA + "," + xB + "," + yB);
 		if (xA != xB && yA != yB) {
@@ -109,7 +104,7 @@ public class GraphEntry {
 				nmax = nA;
 			}
 
-			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY, maxY);
+			findNodeAndMakeNetworkX(indexName, nmin, nmax, minX, minY, maxY, json);
 		} else if (yA == yB) {
 			minX = xA;
 			maxX = xB;
@@ -120,7 +115,7 @@ public class GraphEntry {
 				nmin = nB;
 				nmax = nA;
 			}
-			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX, minY);
+			findNodeAndMakeNetworkY(indexName, nmin, nmax, minX, maxX, minY, json);
 		} else {
 			throw new IllegalArgumentException(
 					"you must have xA == xB or yA == yB");
@@ -128,37 +123,37 @@ public class GraphEntry {
 	}
 
 	private void findNodeAndMakeNetworkY(String typeName, Node nmin, Node nmax,
-			int minX, int maxX, int minY) {
+			int minX, int maxX, int minY, String json) {
 		Node nX = nmin;
 		Node prev = nmin;
 		for (int i = minX + 1; i < maxX; i++) {
 			Node r = graph.findEventXYNode(typeName, i, minY);
 			if (r != null) {
 				nX = r;
-				createRelation(prev, nX);
+				createRelation(prev, nX, json);
 				prev = nX;
 			}
 		}
-		createRelation(nX, nmax);
+		createRelation(nX, nmax, json);
 	}
 
 	private void findNodeAndMakeNetworkX(String typeName, Node nmin, Node nmax,
-			int minX, int minY, int maxY) {
+			int minX, int minY, int maxY, String json) {
 		Node nX = nmin;
 		Node prev = nmin;
 		for (int i = minY + 1; i < maxY; i++) {
 			Node r = graph.findEventXYNode(typeName, minX, i);
 			if (r != null) {
 				nX = r;
-				createRelation(prev, nX);
+				createRelation(prev, nX, json);
 				prev = nX;
 			}
 		}
-		createRelation(nX, nmax);
+		createRelation(nX, nmax, json);
 	}
 
-	private void createRelation(Node nmin, Node nX) {
-		graph.createRelation(nmin, nX);		
+	private void createRelation(Node nmin, Node nX, String json) {
+		graph.createRelation(nmin, nX, json);		
 	}
 
 	public String getNodeName(String indexName, String id) {
@@ -179,8 +174,8 @@ public class GraphEntry {
 	}
 
 	public void createRelationship(String indexName, String nameA,
-			String nameB, int length) {
-		graph.createRelationship(indexName, nameA, nameB, length);
+			String nameB, int length, String json) {
+		graph.createRelationship(indexName, nameA, nameB, length, json);
 	}
 
 	public void remove(String indexName, String name) {
@@ -195,8 +190,8 @@ public class GraphEntry {
 		return graph.findAll(indexName);
 	}
 
-	public List<Relationship> findAllRelation(RelationshipType type) {
-		return graph.findAllRelationship(type);
+	public List<Object> findAllRelationProperty(RelationshipType type) {
+		return graph.findAllRelationshipProperty(type);
 	}
 
 	public Node getStartNode(Relationship node) {

@@ -70,9 +70,39 @@
 			tempo_array = tempo_array.substring(1);
 			var data = tempo_array.split(",");
 						
-			var materialCube = new THREE.MeshLambertMaterial({
+			var materialCubeWhite = new THREE.MeshLambertMaterial({
 				color : 0xffffff
 			});	
+			
+			var materialCubeBlack = new THREE.MeshLambertMaterial({
+				color : 0x000000
+			});
+			
+			var materialCubeRed = new THREE.MeshLambertMaterial({
+				color : 0xff0000
+			});
+			
+			var materialCubeGreen = new THREE.MeshLambertMaterial({
+				color : 0x00ff00
+			});
+			
+			var materialCubeBlue = new THREE.MeshLambertMaterial({
+				color : 0x0000ff
+			});
+			
+			var materialCubePink = new THREE.MeshLambertMaterial({
+				color : 0xff00ff
+			});
+			
+			var materialCubeBlueSky = new THREE.MeshLambertMaterial({
+				color : 0x00ffff
+			});			
+			
+			var materialCubeYellow = new THREE.MeshLambertMaterial({
+				color : 0xffff00
+			});
+			
+		
 			
 			var directionalLight;
 			
@@ -302,7 +332,7 @@
 				imageData[ i + 2 ] =  blue + 128 * (data[ j ] / maxheight) * 2; 
 			}
 			
-			function updateTexture(data, xA, yA, xB, yB) {				
+			function updateTexture(data, xA, yA, xB, yB, red, green, blue) {				
 				var image, context, imageData;
 
 				var width = worldWidth;
@@ -326,9 +356,9 @@
 					
 					for(var i = minx; i < maxx; i++){
 						var tmp = (xAx  + i * width) * 4;						
-						imageData[tmp] = 200;
-						imageData[tmp + 1] = 100;
-						imageData[tmp + 2] = 100;
+						imageData[tmp] = red;
+						imageData[tmp + 1] = green;
+						imageData[tmp + 2] = blue;
 					}					
 				} else if(yA == yB){
 					var min = xA;
@@ -344,9 +374,9 @@
 						
 					for(var i = minx; i < maxx; i++){
 						var tmp = (i   + yAx * width) * 4;						
-						imageData[tmp] = 200;
-						imageData[tmp + 1] = 100;
-						imageData[tmp + 2] = 100;	
+						imageData[tmp] = red;
+						imageData[tmp + 1] = green;
+						imageData[tmp + 2] = blue;	
 					}
 				} 				
 				context.putImageData( image, 0, 0 );
@@ -563,12 +593,16 @@
 					var xa = json.xa;
 					var za = json.za;
 					var xb = json.xb;
-					var zb = json.zb;					
-					var command = json.command;
+					var zb = json.zb;	
 					
+					var red = json.red;
+					var green = json.green;
+					var blue = json.blue;	
+					
+					var command = json.command;					
 					if(command == "create_road") {
 					
-						var texture = new THREE.Texture(updateTexture(data, xa, za, xb, zb), THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping );
+						var texture = new THREE.Texture(updateTexture(data, xa, za, xb, zb, red, green, blue), THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping );
 						
 						texture.needsUpdate = true;	
 						mesh.material.map = texture;
@@ -593,6 +627,7 @@
 					var height = json.height;
 					var command = json.command;
 					var name = json.name;
+					var mycolor = json.color;
 					
 					if(command == "create" || command == "create_transport") {						
 						
@@ -600,8 +635,30 @@
 						// get rid of the bottom face - it is never seen
 						geometry.faces.splice( 6, 1 );
 						geometry.faceVertexUvs[0].splice( 6, 1 );
+						var cube;						
 						
-						var cube = new THREE.Mesh(geometry, materialCube);						
+						if(mycolor == '0xffffff'){
+							cube = new THREE.Mesh(geometry, materialCubeWhite);	
+						} else if(mycolor == '0x000000'){
+							cube = new THREE.Mesh(geometry, materialCubeBlack);	
+						} else if(mycolor == '0xff0000'){
+							cube = new THREE.Mesh(geometry, materialCubeRed);	
+						} else if(mycolor == '0x00ff00'){
+							cube = new THREE.Mesh(geometry, materialCubeGreen);	
+						}else if(mycolor == '0x0000ff'){
+							cube = new THREE.Mesh(geometry, materialCubeBlue);	
+						}else if(mycolor == '0xff00ff'){
+							cube = new THREE.Mesh(geometry, materialCubePink);	
+						}else if(mycolor == '0x00ffff'){
+							cube = new THREE.Mesh(geometry, materialCubeBlueSky);	
+						} else if(mycolor == '0xffff00'){
+							cube = new THREE.Mesh(geometry, materialCubeYellow);	
+						} else {
+							var materialCubeX = new THREE.MeshLambertMaterial({
+								color : mycolor
+							});
+							cube = new THREE.Mesh(geometry, materialCubeX);	
+						}
 						
 						cube.name = name;
 						cube.position.x = x;
