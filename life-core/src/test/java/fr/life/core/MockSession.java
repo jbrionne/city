@@ -29,7 +29,7 @@ public class MockSession implements Session {
 	
 
 	@Override
-	public void send(TransportMove transportMove, String name, Address origin, Address destination, Product p) {
+	public void moveTransport(TransportMove transportMove, String name, Address origin, Address destination, Product p) {
 		
 		if (origin.getRoadName() == null || "".equals(origin.getRoadName())) {
 			throw new IllegalArgumentException("No road name for " + origin);
@@ -82,7 +82,7 @@ public class MockSession implements Session {
 		container.setTransportMove(transportMove);
 		container.setProduct(p);
 		
-		transportMove.finish(container);
+		transportMove.onArrival(container);
 	}
 
 }

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.city.core.City;
+import fr.city.core.CityBase;
 import fr.city.core.ObserverCity;
 import fr.city.core.PhysicalMoveCity;
 import fr.network.transport.application.Session;
@@ -27,13 +28,13 @@ public class Ecosystem {
 
 	private static final long PERIOD = 10L * 1000L;
 
-	private City city;
+	private CityBase city;
 
 	private static Object monitor = new Object();
 
 	private Ecosystem(ObserverCity myObserverCity) {
 		LOG.info("Ecosystem");
-		this.city = City.getInstance(myObserverCity, "TEST", false);
+		this.city = CityBase.getInstance(myObserverCity, "TEST", false);
 		this.session = SessionBase.getInstance(new PhysicalMoveCity(city));
 		TimerTask timerTask = new LifeTask(city, session);
 		Timer timer = new Timer(true);

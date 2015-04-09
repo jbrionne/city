@@ -5,5 +5,5 @@ import fr.network.transport.physique.Container;
 
 public interface TransportMove<T extends Product> {
 
-	void finish(Container<T> container);
+	void onArrival(Container<T> container);
 }

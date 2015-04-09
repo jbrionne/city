@@ -24,7 +24,7 @@ public class CityTest {
 	@BeforeMethod
 	public void prepareTestDatabase() {
 		LOG.info("prepareTestDatabase");
-		city = City.getInstance(new MockObserverCity(),
+		city = CityBase.getInstance(new MockObserverCity(),
 				PATH + index.incrementAndGet(), true);
 	}
 

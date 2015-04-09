@@ -82,14 +82,14 @@ public class TransportTask extends TimerTask {
 			
 			for(Container container : containersToRemove){
 				if(container.getCoordinates().getX() == container.getFinalDestination().getX() && container.getCoordinates().getZ() == container.getFinalDestination().getZ()) {
-					container.getTransportMove().finish(container);
+					container.getTransportMove().onArrival(container);
 					containers.remove(container);
 				} else {
 					LOG.info("send " +  container.getName());
 					LOG.info("getCoordinates " + container.getCoordinates());
 					LOG.info("getDestination " + container.getDestination());
 					LOG.info("getFinalDestination " + container.getFinalDestination());
-					SessionBase.getInstance(physicalMove).send(container.getTransportMove(), container.getName(), container.getDestination(), container.getFinalDestination(), container.getProduct());
+					SessionBase.getInstance(physicalMove).moveTransport(container.getTransportMove(), container.getName(), container.getDestination(), container.getFinalDestination(), container.getProduct());
 					containers.remove(container);
 				}
 				

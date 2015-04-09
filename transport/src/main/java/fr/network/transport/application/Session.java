@@ -7,15 +7,15 @@ import fr.network.transport.network.Address;
 public interface Session {
 
 	/**
-	 * Create and move a transport from origin to destination with a product
+	 * Move a transport from origin to destination with a product
 	 * 
 	 * @param transportMove callback
 	 * @param origin
 	 *            coordinates of origin
 	 * @param destination
 	 *            coordinates of destination
-	 * @param p
+	 * @param p product
 	 */
-	void send(TransportMove transportMove, String name, Address origin, Address destination, Product p);
+	void moveTransport(TransportMove transportMove, String name, Address origin, Address destination, Product p);
 
 }

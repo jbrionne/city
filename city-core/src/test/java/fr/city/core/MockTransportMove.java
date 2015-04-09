@@ -12,7 +12,7 @@ public class MockTransportMove implements TransportMove {
 			.getLogger(MockTransportMove.class);
 
 	@Override
-	public void finish(Container container) {
+	public void onArrival(Container container) {
 		LOG.info("finish " + container.getName());
 	}
 

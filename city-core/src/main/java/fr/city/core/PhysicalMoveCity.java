@@ -9,9 +9,9 @@ import fr.network.transport.network.RoadInfo;
 
 public class PhysicalMoveCity implements PhysicalMove {
 
-	private City city;
+	private CityBase city;
 
-	public PhysicalMoveCity(City city) {
+	public PhysicalMoveCity(CityBase city) {
 		super();
 		this.city = city;
 	}

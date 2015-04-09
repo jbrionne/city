@@ -92,7 +92,7 @@ public class CityRequest {
 		aD.setRoadName(roadNameDest);
 
 		PopProduct p = new PopProduct(10, 2);
-		session.send(transportMove, name, a, aD, p);
+		session.moveTransport(transportMove, name, a, aD, p);
 	}
 
 	public Building findTransportByName(String name) {
