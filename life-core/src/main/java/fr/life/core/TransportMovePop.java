@@ -22,7 +22,7 @@ public class TransportMovePop implements TransportMove<PopProduct> {
 	}
 
 	@Override
-	public void finish(Container<PopProduct> container) {
+	public void onArrival(Container<PopProduct> container) {
 		LOG.info("finish " + container.getName());
 		PopProduct o = container.getProduct();
 		Building b = CityRequest.getInstance().findBuilding(x, z);

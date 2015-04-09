@@ -38,7 +38,7 @@ public class SessionBase implements Session {
 	}
 
 	@Override
-	public void send(TransportMove transportMove, String name, Address origin, Address destination, Product p) {
+	public void moveTransport(TransportMove transportMove, String name, Address origin, Address destination, Product p) {
 
 		// token
 		// synchronisation

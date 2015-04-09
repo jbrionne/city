@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import fr.city.core.City;
+import fr.city.core.CityBase;
 import fr.city.core.PhysicalMoveCity;
 import fr.network.transport.application.Session;
 
@@ -22,12 +22,12 @@ public abstract class CityViewTest {
 	private static AtomicInteger index = new AtomicInteger();
 	private static final String PATH = "TEST";
 	protected LifeTask life;
-	protected City city;
+	protected CityBase city;
 
 	@BeforeMethod
 	public void prepareTestDatabase() {
 		LOG.info("prepareTestDatabase");
-		city = City.getInstance(new MockObserverCity(),
+		city = CityBase.getInstance(new MockObserverCity(),
 				PATH + index.incrementAndGet(), true);
 		Session session = new MockSession(new PhysicalMoveCity(city));
 		life = new LifeTask(city, session);		
