@@ -30,8 +30,7 @@ public abstract class CityViewTest {
 		city = CityBase.getInstance(new MockObserverCity(),
 				PATH + index.incrementAndGet(), true);
 		Session session = new MockSession(new PhysicalMoveCity(city));
-		life = new LifeTask(city, session);		
-		CityRequest.reinitialize(city, session);
+		life = new LifeTask(city, session);	
 	}
 
 	@AfterMethod

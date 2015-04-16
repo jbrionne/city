@@ -14,14 +14,11 @@ public class LifeTask extends TimerTask {
 	private static final Logger LOG = LoggerFactory.getLogger(LifeTask.class);
 
 	private City city;
-	private CityBuild cityBuild;
-	
+	private Session session;
 
 	public LifeTask(City city, Session session) {
-		this.city = city;	
-		this.cityBuild = new CityBuild();
-		//initialize CityRequest
-		CityRequest.getInstance(city, session);
+		this.city = city;
+		this.session = session;
 	}
 
 	public void destroy() {
@@ -36,11 +33,7 @@ public class LifeTask extends TimerTask {
 	}
 
 	private void doSomeWork() {
-		cityBuild.initialize();
-	}
-
-	public CityBuild getCityBuild() {
-		return cityBuild;
+		// do something
 	}
 
 }
