@@ -130,6 +130,10 @@ public class GraphEntry {
 	public void create(String indexName, String name, int x, int y, String json) {
 		graph.createNode(indexName, name, x, y, json);
 	}
+	
+	public void update(String indexName, String name, String json) {
+		graph.updateNode(indexName, name, json);
+	}
 
 	public void createRelationship(String indexName, String nameA,
 			String nameB, int length, String json) {

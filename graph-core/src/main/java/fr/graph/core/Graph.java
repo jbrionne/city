@@ -75,6 +75,48 @@ public class Graph {
 			tx.success();
 		}
 	}
+	
+	public Node updateNode(String indexName, String name, String json) {
+
+		if (json == null) {					
+			throw new IllegalArgumentException(
+					"nothing to update custom json");
+		}	
+		
+		if (!name.startsWith(indexName)) {
+			throw new IllegalArgumentException(
+					"name must start with index name " + indexName + " " + name);
+		}
+
+		if (name.equals(indexName)) {
+			throw new IllegalArgumentException(
+					"name must start with index name but not equals to index name "
+							+ indexName + " " + name);
+		}
+
+		Node node = null;
+		try (Transaction tx = graphDb.beginTx()) {
+
+			Index<Node> nodeIndex = nodesIndexMap.get(indexName);
+			if (nodeIndex == null) {
+				throw new IllegalArgumentException(
+						"The node index doesn't exist " + indexName);
+			}
+
+			Node n = find(indexName, name);
+			if (n == null) {
+				throw new IllegalArgumentException(
+						"The node doesn't exist " + indexName + " " + name);
+			}		
+			
+			
+			n.setProperty(CUSTOM, json);
+			tx.success();
+		}
+		return node;
+	}
+	
+	
 
 	public Node createNode(String indexName, String name, int x, int y,
 			String json) {
@@ -296,7 +338,7 @@ public class Graph {
 					+ indexName);
 		}
 		try (Transaction tx = graphDb.beginTx()) {
-			GraphUtils
+			res = GraphUtils
 					.findEventNodeProperty(graphDb, nodeIndex, name, property);
 			tx.success();
 		}
@@ -471,12 +513,12 @@ public class Graph {
 			}
 		}
 
-		List<InfoNode> lst = filterPath(indexName, pathNames);
+		List<InfoNode> lst = filterPath(indexName, pathNames, origin, destination);
 
 		return lst;
 	}
 
-	private List<InfoNode> filterPath(String indexName, List<InfoNode> pathNames) {
+	private List<InfoNode> filterPath(String indexName, List<InfoNode> pathNames, InfoAddress origin, InfoAddress destination) {
 		List<InfoNode> lst = new ArrayList<InfoNode>();
 		int index = 0;
 		int size = pathNames.size();
@@ -487,7 +529,7 @@ public class Graph {
 				info.setCustom(i.getCustom());
 				info.setX(i.getX());
 				info.setZ(i.getZ());
-
+				
 				if (index == size - 1 && size >= 4) {
 					info.setName(pathNames.get(index - 3).getName());
 				} else if (index - 1 >= 0) {
@@ -496,7 +538,15 @@ public class Graph {
 					} else {
 						info.setName(pathNames.get(index - 1).getName());
 					}
+				} 
+				
+				if(index == 0){
+					info.setName(origin.getRoadName());
+				}				
+				if(index == size - 1){
+					info.setName(destination.getRoadName());
 				}
+				
 				lst.add(info);
 			}
 			index++;

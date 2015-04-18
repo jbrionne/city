@@ -52,8 +52,8 @@ public class CityBase implements City {
 		this.terrainLayout = new TerrainLayout(max);
 	}
 
-	public static CityBase getInstance(ObserverCity myObserverCity, String repo,
-			boolean test) {
+	public static CityBase getInstance(ObserverCity myObserverCity,
+			String repo, boolean test) {
 		if (city == null) {
 			synchronized (monitor) {
 				if (city == null) {
@@ -69,7 +69,9 @@ public class CityBase implements City {
 		return city;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#destroy()
 	 */
 	@Override
@@ -80,7 +82,9 @@ public class CityBase implements City {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#getAllRoads()
 	 */
 	@Override
@@ -105,7 +109,9 @@ public class CityBase implements City {
 		return lstBs;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#getAllBuildings()
 	 */
 	@Override
@@ -130,7 +136,9 @@ public class CityBase implements City {
 		return lstBs;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#removeBuilding(java.lang.String)
 	 */
 	@Override
@@ -153,7 +161,6 @@ public class CityBase implements City {
 		removeBuilding(bOld);
 	}
 
-	
 	public List<PathInfo> findPath(Address origin, Address destination) {
 		if (origin == null) {
 			throw new IllegalArgumentException(
@@ -188,7 +195,9 @@ public class CityBase implements City {
 		return path;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#removeBuilding(fr.city.core.Building)
 	 */
 	@Override
@@ -203,7 +212,9 @@ public class CityBase implements City {
 		observerCity.removeBuilding(bOld);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#createBuilding(int, int, int, java.lang.String)
 	 */
 	@Override
@@ -248,7 +259,9 @@ public class CityBase implements City {
 		return b;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#findRoad(int, int, int, int)
 	 */
 	@Override
@@ -260,7 +273,9 @@ public class CityBase implements City {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#findRoadByName(java.lang.String)
 	 */
 	@Override
@@ -283,7 +298,35 @@ public class CityBase implements City {
 		return b;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see fr.city.core.City#findBuildingByName(java.lang.String)
+	 */
+	@Override
+	public Building findBuildingByName(String name) {
+		Building b = null;
+		Object jsonBuilding = graphBuilding.find(BUILDING.name(), name,
+				Graph.CUSTOM);
+		if (jsonBuilding != null) {
+			LOG.debug("findBuildingByName " + (String) jsonBuilding);
+			ObjectMapper mapper = new ObjectMapper();
+
+			try {
+				b = mapper.readValue((String) jsonBuilding, Building.class);
+			} catch (IOException e) {
+				LOG.error("convert object to Json", e);
+			}
+			if (b == null) {
+				throw new IllegalArgumentException("Building is null");
+			}
+		}
+		return b;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#checkIfRoadExists(int, int, int, int)
 	 */
 	@Override
@@ -291,7 +334,9 @@ public class CityBase implements City {
 		return graphBuilding.checkIfRoadExists(ROAD.name(), x, z, xD, zD);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#createSource(int, int)
 	 */
 	@Override
@@ -303,8 +348,10 @@ public class CityBase implements City {
 
 		graphBuilding.createSource(ROAD.name(), x, z);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#checkIfSourceExists(int, int)
 	 */
 	@Override
@@ -316,7 +363,9 @@ public class CityBase implements City {
 		return graphBuilding.checkIfSourceExists(ROAD.name(), x, z);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#createRoad(int, int, int, int, java.awt.Color)
 	 */
 	@Override
@@ -357,8 +406,11 @@ public class CityBase implements City {
 		return r;
 	}
 
-	/* (non-Javadoc)
-	 * @see fr.city.core.City#updateOrCreateBuilding(int, int, int, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see fr.city.core.City#updateOrCreateBuilding(int, int, int,
+	 * java.lang.String)
 	 */
 	@Override
 	public Building updateOrCreateBuilding(int x, int z, int height,
@@ -385,12 +437,43 @@ public class CityBase implements City {
 			if (b == null) {
 				throw new IllegalArgumentException("Building is null");
 			}
-			removeBuilding(b);
+			return updateBuilding(b.getName(), height, color);
+		} else {
+			return createBuilding(x, z, height, color);
 		}
-		return createBuilding(x, z, height, color);
 	}
 
-	/* (non-Javadoc)
+	@Override
+	public Building updateBuilding(String name, int height, String color) {
+		Building b = findBuildingByName(name);
+		if(b == null){
+			throw new IllegalArgumentException("The building doesn't exist " + name);
+		}
+		return updateBuilding(b, height, color);
+	}
+
+	private Building updateBuilding(Building bOld, int height, String color) {
+		observerCity.removeBuilding(bOld);
+		bOld.setHeight(height);
+		bOld.setColor(color);
+		ObjectMapper mapper = new ObjectMapper();
+		StringWriter writer = new StringWriter();
+		try {
+			mapper.writeValue(writer, bOld);
+		} catch (Exception e) {
+			LOG.error("convert object to Json", e);
+		}
+		LOG.debug(writer.toString());
+		graphBuilding
+				.update(BUILDING.name(), bOld.getName(), writer.toString());
+
+		observerCity.createBuilding(bOld);
+		return bOld;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#findBuilding(int, int)
 	 */
 	@Override
@@ -441,6 +524,11 @@ public class CityBase implements City {
 		synchronized (monitorMaptransportsMap) {
 
 			Building b = transportsMap.get(name);
+			if (b == null) {
+				throw new IllegalArgumentException("No transport for name "
+						+ name);
+			}
+
 			b.setX(coord.getX());
 			b.setZ(coord.getZ());
 			int y = terrainLayout.getHeight(coord.getX(), coord.getZ());
@@ -464,7 +552,9 @@ public class CityBase implements City {
 		return br;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#removeTransport(java.lang.String)
 	 */
 	@Override
@@ -483,7 +573,9 @@ public class CityBase implements City {
 		observerCity.removeTransport(br);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#findTransportByName(java.lang.String)
 	 */
 	@Override
@@ -491,6 +583,10 @@ public class CityBase implements City {
 		Building br = null;
 		synchronized (monitorMaptransportsMap) {
 			Building b = transportsMap.get(name);
+			if (b == null) {
+				throw new IllegalArgumentException("No transport for name "
+						+ name);
+			}
 
 			// copy of the building to avoid concurrency
 			br = copyBuilding(b);
@@ -498,8 +594,11 @@ public class CityBase implements City {
 		return br;
 	}
 
-	/* (non-Javadoc)
-	 * @see fr.city.core.City#createTransport(fr.network.transport.api.Coord2D, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see fr.city.core.City#createTransport(fr.network.transport.api.Coord2D,
+	 * java.lang.String)
 	 */
 	@Override
 	public Building createTransport(Coord2D coord, String color) {
@@ -512,7 +611,6 @@ public class CityBase implements City {
 					+ (max - 1) + " " + coord.getX() + " " + coord.getZ());
 		}
 		Building b = new Building();
-		LOG.info("new Transport x:" + coord.getX() + "  z:" + coord.getZ());
 		b.setX(coord.getX());
 		b.setZ(coord.getZ());
 		b.setHeight(5);
@@ -520,8 +618,13 @@ public class CityBase implements City {
 		b.setY(y);
 		b.setColor(color);
 
-		b.setName(graphBuilding.getNodeName(TRANSPORT.name(),
-				String.valueOf(id.getAndIncrement())));
+		String name = graphBuilding.getNodeName(TRANSPORT.name(),
+				String.valueOf(id.getAndIncrement()));
+
+		b.setName(name);
+
+		LOG.info("new Transport x:" + coord.getX() + "  z:" + coord.getZ()
+				+ " name:" + name);
 
 		Building br = null;
 		synchronized (monitorMaptransportsMap) {
@@ -534,7 +637,9 @@ public class CityBase implements City {
 		return br;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#getCityName()
 	 */
 	@Override
@@ -546,7 +651,9 @@ public class CityBase implements City {
 		this.cityName = cityName;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see fr.city.core.City#getMax()
 	 */
 	@Override
@@ -554,12 +661,10 @@ public class CityBase implements City {
 		return max;
 	}
 
-	
 	public TerrainLayout getTerrainLayout() {
 		return terrainLayout;
 	}
 
-	
 	public ObserverCity getObserverCity() {
 		return observerCity;
 	}

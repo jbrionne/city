@@ -30,6 +30,7 @@ public class MockSession implements Session {
 
 	@Override
 	public void moveTransport(TransportMove transportMove, String name, Address origin, Address destination, Product p) {
+		LOG.info("MockSession moveTransport to {} [}", destination.getX(), destination.getZ());
 		
 		if (origin.getRoadName() == null || "".equals(origin.getRoadName())) {
 			throw new IllegalArgumentException("No road name for " + origin);

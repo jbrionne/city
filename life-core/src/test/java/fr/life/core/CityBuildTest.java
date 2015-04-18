@@ -4,8 +4,5 @@ import org.testng.annotations.Test;
 
 public class CityBuildTest extends CityViewTest {
 
-	@Test
-	public void todo() {
-	}
 
 }
