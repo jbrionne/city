@@ -121,6 +121,7 @@ public class GraphUtils {
 		LOG.debug("createNode with custom {} {}", name, name2);
 		return entity;
 	}
+	
 
 	public static Node createNode(GraphDatabaseService graphDb,
 			Index<Node> nodeIndex, String name, String name2, String x, int x2,
@@ -261,9 +262,9 @@ public class GraphUtils {
 	}
 
 	public static Object findEventNodeProperty(GraphDatabaseService graphDb,
-			Index<Node> nodeIndex, String idToFind, String property) {
+			Index<Node> nodeIndex, String idToFind, String property) {		
 		Node foundEvent = nodeIndex.get(Graph.NAME, idToFind).getSingle();
-		return foundEvent.getProperty(property);
+		return foundEvent.getProperty(property);		
 	}
 
 	public static void removeEventNode(GraphDatabaseService graphDb,

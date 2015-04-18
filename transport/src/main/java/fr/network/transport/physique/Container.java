@@ -80,5 +80,14 @@ public class Container<T extends Product> implements Product {
 		this.transportMove = transportMove;
 	}
 
+	@Override
+	public String toString() {
+		return "Container [product=" + product + ", transportMove="
+				+ transportMove + ", capacity=" + capacity + ", coordinates="
+				+ coordinates + ", destination=" + destination
+				+ ", finalDestination=" + finalDestination + ", name=" + name
+				+ ", volume=" + volume + "]";
+	}
+
 
 }

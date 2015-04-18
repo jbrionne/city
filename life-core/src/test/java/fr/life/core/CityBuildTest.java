@@ -2,88 +2,117 @@ package fr.life.core;
 
 import static org.testng.Assert.assertEquals;
 
-import java.awt.Color;
-
 import org.testng.annotations.Test;
 
 import fr.city.core.Building;
 import fr.city.core.CityColor;
 import fr.city.core.Road;
+import fr.network.transport.network.Address;
+import fr.network.transport.physique.Container;
 
 public class CityBuildTest extends CityViewTest {
 
-	@Test
-	public void doubleSource() {
-		CityRequest.getInstance().source(100, 0);
-		CityRequest.getInstance().source(100, 0);
-	}
 
-	@Test
-	public void firstRoad() {
-		CityRequest.getInstance().source(100, 0);
-		Road r = CityRequest.getInstance().road(100, 0, 100, 100, Color.WHITE);
-		assertEquals(r.getXa(), 100);
-		assertEquals(r.getZa(), 0);
-		assertEquals(r.getXb(), 100);
-		assertEquals(r.getZb(), 100);
-	}
-
-	@Test
-	public void firstDoubleRoad() {
-		CityRequest.getInstance().source(100, 0);
-		Road r1 = CityRequest.getInstance().road(100, 0, 100, 100, Color.WHITE);
-		Road r2 = CityRequest.getInstance().road(100, 0, 100, 100, Color.WHITE);
-		assertEquals(r1.getXa(), r2.getXa());
-		assertEquals(r1.getZa(), r2.getZa());
-		assertEquals(r1.getXb(), r2.getXb());
-		assertEquals(r1.getZb(), r2.getZb());
-	}
 
 	@Test
 	public void firstBuilding() {
-		Building b = CityRequest.getInstance().building(99, 90, 0,
-				CityColor.BLUE);
-		assertEquals(b.getX(), 99);
-		assertEquals(b.getZ(), 90);
-		assertEquals(b.getHeight(), 0);
+		//**S1) Placer un building A rouge de hauteur 10 à l'emplacement 100, 50		
+		Building b = life.getCityBuild().createBuildingA();
+		assertEquals(b.getX(), 100);
+		assertEquals(b.getZ(), 50);
+		assertEquals(b.getHeight(), 70);
+		assertEquals(b.getColor(), CityColor.RED);		
+		
+		//trust the framework ?		
+		Building bf = CityRequest.getInstance().findBuilding(100, 50);
+		assertEquals(bf.getX(), 100);
+		assertEquals(bf.getZ(), 50);
+		assertEquals(bf.getHeight(), 70);		
+		assertEquals(b.getColor(), CityColor.RED);
 	}
-
+	
 	@Test
-	public void firstBuildingUpdate() {
-		Building b = CityRequest.getInstance().building(99, 90, 0,
-				CityColor.BLUE);
-		assertEquals(b.getX(), 99);
-		assertEquals(b.getZ(), 90);
-		assertEquals(b.getHeight(), 0);
-
-		Building b1 = CityRequest.getInstance().building(99, 90, 10,
-				CityColor.BLUE);
-		assertEquals(b1.getX(), 99);
-		assertEquals(b1.getZ(), 90);
-		assertEquals(b1.getHeight(), 10);
+	public void secondBuilding() {
+		//**S2) Placer un building B bleu de hauteur 10 à l'emplacement 100, 10		
+		Building b = life.getCityBuild().createBuildingB();
+		assertEquals(b.getX(), 100);
+		assertEquals(b.getZ(), 10);
+		assertEquals(b.getHeight(), 10);
+		assertEquals(b.getColor(), CityColor.BLUE);		
+		
+		//trust the framework ?		
+		Building bf = CityRequest.getInstance().findBuilding(100, 10);
+		assertEquals(bf.getX(), 100);
+		assertEquals(bf.getZ(), 10);
+		assertEquals(bf.getHeight(), 10);		
+		assertEquals(b.getColor(), CityColor.BLUE);
 	}
-
+	
 	@Test
-	public void firstTransport() {
-		Building t = CityRequest.getInstance().transport(100, 0,
-				CityColor.YELLOW);
-		assertEquals(t.getX(), 100);
-		assertEquals(t.getZ(), 0);
+	public void createRoadAB() {
+		//**S3) Placer une route reliant les deux buildings	
+		Road r = life.getCityBuild().createRoadAB();
+		assertEquals(r.getXa(), 99);
+		assertEquals(r.getXb(), 99);
+		assertEquals(r.getZa(), 0);
+		assertEquals(r.getZb(), 100);		
+		
+	
+//		//trust the framework ?			
+		Road rf = CityRequest.getInstance().findRoad(99, 0, 99, 100);
+		assertEquals(rf.getXa(), 99);
+		assertEquals(rf.getXb(), 99);
+		assertEquals(rf.getZa(), 0);
+		assertEquals(rf.getZb(), 100);	
 	}
-
+	
+	
 	@Test
-	public void moveTransport() throws InterruptedException {
-		CityRequest.getInstance().source(100, 0);
-		Building b = CityRequest.getInstance().building(99, 90, 0,
-				CityColor.BLUE);
-		Road r = CityRequest.getInstance().road(100, 0, 100, 100, Color.WHITE);
-		int xD = 100;
-		int zD = 90;
-		Building t = CityRequest.getInstance().transport(100, 0,
-				CityColor.YELLOW);
-		TransportMovePop tm = new TransportMovePop(b.getX(), b.getZ());
-		CityRequest.getInstance().moveTransport(tm, t.getName(), 100, 0,
-				r.getName(), xD, zD, r.getName());
+	public void moveTransport() {
+		//**S4) Faire apparaitre un transport se déplacant sur la route, de A en B
+		Road r = life.getCityBuild().createRoadAB();
+		MockTransportMovePop tm = new MockTransportMovePop();
+		Building t = life.getCityBuild().launchTransportAB(r.getName(), tm);		
+		Building t2 = CityRequest.getInstance().findTransportByName(t.getName());
+		
+		assertEquals(t2.getX(), 99);
+		assertEquals(t2.getZ(), 50);
+		assertEquals(t2.getName(), t.getName());		
 	}
+	
+	
+	@Test
+	public void infiniteTransport()  {
+		//**S5) Le transport doit faire l'aller-retour entre A et B (sans fin, sans pause)		
+		Address oriAB = new Address();
+		oriAB.setX(0);
+		oriAB.setZ(0);
+		oriAB.setRoadName("test");	
+		
+		Address oriBA = new Address();
+		oriBA.setX(0);
+		oriBA.setZ(100);
+		oriBA.setRoadName("test");	
+				
+		//????	
+		//tAB.launchBA(container, tm);		
+	}
+	
+	@Test
+	public void exhangeTransport()  {	
+		//	**S6) Le transport en A récupère des produits (simuler par la baisse de la hauteur du building A)
+		//	 pour les remettre au building B (simuler  par une augmentation de la hauteur du building B).
+		//	Le transport ensuite retourne vers le building A rechercher des produits et la boucle recommence.
+		//	Le building est contruit lorsque sa hauteur atteint 50 de haut ; Le transport disparait alors
+		
+		
+		
+	
+	}
+	
+	
+
+	
+	
 
 }

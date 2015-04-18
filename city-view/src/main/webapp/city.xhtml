@@ -24,11 +24,8 @@
 		<h1>City</h1>					
 	</header>
 	
-	<section id="main">		
-	
-		<input id="clickMe" type="button" value="house"
-				onclick="askForCube();" />		
-	
+	<section id="main">	
+		
 		<h:outputLabel id="citynameLabel"
 			value="#{cityView.cityName} " />
 		
@@ -629,6 +626,19 @@
 					var name = json.name;
 					var mycolor = json.color;
 					
+					if(command == "move") {		
+						console.log(x + ":" + z);
+						var object = scene.getObjectByName(name);
+						if(object == null) {
+							command = "create_transport";
+						} else {					
+							console.log(object);
+							object.position.x = x;
+							object.position.y = (height / 2) + y;
+							object.position.z = z;	
+						}
+					}		
+					
 					if(command == "create" || command == "create_transport") {						
 						
 						var geometry = new THREE.BoxGeometry(step, height, step);
@@ -675,19 +685,14 @@
 						
 						scene.add(cube); 
 						
-					} else if(command == "remove") {		
+					}
+					
+					if(command == "remove") {		
 						console.log(x + ":" + z);
 						var object = scene.getObjectByName(name);
 						console.log(object);
 						scene.remove(object);		
-					}  else if(command == "move") {		
-						console.log(x + ":" + z);
-						var object = scene.getObjectByName(name);
-						console.log(object);
-						object.position.x = x;
-						object.position.y = (height / 2) + y;
-						object.position.z = z;	
-					}						
+					}  				
 				}
 		//]]>
 		</script>

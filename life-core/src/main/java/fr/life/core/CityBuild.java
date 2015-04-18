@@ -7,16 +7,15 @@ import org.slf4j.LoggerFactory;
 
 import fr.city.core.Building;
 import fr.city.core.CityColor;
-import fr.life.core.road.EntryPoint;
-import fr.life.core.road.Rectangle;
-import fr.life.core.road.RectangleEntry;
-import fr.life.core.road.VectorPoint;
+import fr.city.core.Road;
+import fr.network.transport.api.TransportMove;
+import fr.network.transport.network.Address;
 
 public class CityBuild {
 
-	private static final Logger LOG = LoggerFactory.getLogger(CityBuild.class);
+	private static final int ROAD_X = 99;
 
-	private CityState cityState = new CityState();
+	private static final Logger LOG = LoggerFactory.getLogger(CityBuild.class);
 
 	private boolean init = false;
 
@@ -27,21 +26,56 @@ public class CityBuild {
 	public void initialize() {
 		if (!init) {
 			init = true;
-			CityRequest.getInstance().source(100, 0);
-			cityState.setRoad(CityRequest.getInstance().road(100, 0, 100, 100,
-					Color.RED));
-			EntryPoint entryPoint = new EntryPoint(100, 100, cityState
-					.getRoad().getName());
-			VectorPoint vectorPoint = new VectorPoint(6, 5);
-			Rectangle c = new Rectangle(entryPoint, vectorPoint);
-			RectangleEntry es = c.build(Color.WHITE);
+			Building a = createBuildingA();
+			Building b = createBuildingB();
+
+			Road r = createRoadAB();
+
+			Address ori = new Address();
+			ori.setX(ROAD_X);
+			ori.setZ(a.getZ());
+			ori.setRoadName(r.getName());
+
+			Address dest = new Address();
+			dest.setX(ROAD_X);
+			dest.setZ(b.getZ());
+			dest.setRoadName(r.getName());
+
+			PrivateEntry privateEntryA = new PrivateEntry();
+			privateEntryA.setAddress(ori);
+			privateEntryA.setBuildingName(a.getName());
+
+			PrivateEntry privateEntryB = new PrivateEntry();
+			privateEntryB.setAddress(dest);
+			privateEntryB.setBuildingName(b.getName());
+
+			TransportMovePopAB tm = new TransportMovePopAB(privateEntryA,
+					privateEntryB);
+			launchTransportAB(r.getName(), tm);
 		}
 
-		Building b = CityRequest.getInstance()
-				.transport(100, 0, CityColor.BLUE);
-		CityRequest.getInstance().moveTransport(new TransportMovePop(99, 90),
-				b.getName(), 100, 0, cityState.getRoad().getName(), 100, 90,
-				cityState.getRoad().getName());
+	}
+
+	public Building createBuildingA() {
+		return CityRequest.getInstance().updateOrCreateBuilding(100, 50, 70, CityColor.RED);
+	}
+
+	public Building createBuildingB() {
+		return CityRequest.getInstance().updateOrCreateBuilding(100, 10, 10, CityColor.BLUE);
+	}
+
+	public Road createRoadAB() {
+		CityRequest.getInstance().source(99, 0);
+		return CityRequest.getInstance()
+				.road(ROAD_X, 0, ROAD_X, 100, Color.RED);
+	}
+
+	public Building launchTransportAB(String roadName, TransportMove tm) {
+		Building t = CityRequest.getInstance().transport(ROAD_X, 10,
+				CityColor.YELLOW);
+		CityRequest.getInstance().moveTransport(null, tm, t.getName(), t.getX(),
+				t.getZ(), roadName, ROAD_X, 50, roadName);
+		return t;
 	}
 
 }

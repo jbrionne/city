@@ -145,6 +145,20 @@ public interface City {
 	 */
 	Building updateOrCreateBuilding(int x, int z, int height,
 			String color);
+	
+	/**
+	 * Update a building. 
+	 * 
+	 * @param name
+	 *           	name of the building
+	 * @param height
+	 *            the height must be positive
+	 * @param color
+	 *            use CityColor or color hex like "0xffffff"
+	 * @return the building
+	 */
+	Building updateBuilding(String name, int height,
+			String color);
 
 	/**
 	 * Find a building with coordinates
@@ -156,6 +170,13 @@ public interface City {
 	 * @return the building
 	 */
 	Building findBuilding(int x, int z);
+	
+	/**
+	 * Find a building by name
+	 * @param name name of the building
+	 * @return the building
+	 */
+	Building findBuildingByName(String name);
 
 	/**
 	 * Remove a transport by name

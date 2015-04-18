@@ -35,10 +35,7 @@ public class Network {
 		// gestion congestion du réseau
 
 		List<PathInfo> pathInfos = physicalMove.findPath(origin, destination);
-		// ROAD100:0 100 0
-		// 14:45:20.096 [main] INFO fr.life.core.MockSession - 100:0:100:90 0 0
-		// 14:45:20.096 [main] INFO fr.life.core.MockSession - ROAD100:90 100
-		// 90/
+		
 		if (pathInfos == null || pathInfos.size() < 2) {
 			throw new IllegalArgumentException("No path for " + origin + " "
 					+ destination);
@@ -61,16 +58,19 @@ public class Network {
 		Capacity capacity = new Capacity();
 		capacity.setVolume(20);
 		capacity.setVelocity(1);
-
-		if (capacity.getVolume() - p.getVolume() < 0) {
-			throw new IllegalArgumentException("Container is full "
-					+ capacity.getVolume() + " " + p.getVolume());
+		int volume = capacity.getVolume();
+		if(p != null) {
+			volume = volume - p.getVolume();			
+			if ( volume < 0) {
+				throw new IllegalArgumentException("Container is full "
+						+ capacity.getVolume() + " " + p.getVolume());
+			}
 		}
 
 		LOG.info("ori " + ori);
 		LOG.info("dest " + dest);
 		Container container = new Container();
-		capacity.setVolume(capacity.getVolume() - p.getVolume());
+		capacity.setVolume(volume);
 		container.setCapacity(capacity);
 		container.setTransportMove(transportMove);
 		container.setCoordinates(ori);

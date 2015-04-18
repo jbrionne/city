@@ -82,6 +82,7 @@ public class TransportTask extends TimerTask {
 			
 			for(Container container : containersToRemove){
 				if(container.getCoordinates().getX() == container.getFinalDestination().getX() && container.getCoordinates().getZ() == container.getFinalDestination().getZ()) {
+					LOG.info("arrive " +  container);
 					container.getTransportMove().onArrival(container);
 					containers.remove(container);
 				} else {

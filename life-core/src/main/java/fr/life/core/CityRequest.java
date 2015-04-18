@@ -71,15 +71,19 @@ public class CityRequest {
 		}
 	}
 
-	public Building building(int x, int z, int height, String color) {
+	public Building updateOrCreateBuilding(int x, int z, int height, String color) {
 		return city.updateOrCreateBuilding(x, z, height, color);
+	}
+
+	public Building updateBuilding(String name, int height, String color) {
+		return city.updateBuilding(name, height, color);
 	}
 
 	public Building transport(int x, int z, String color) {
 		return city.createTransport(new Coordinates(x, z), color);
 	}
 
-	public void moveTransport(TransportMove transportMove, String name, int x,
+	public void moveTransport(PopProduct p, TransportMove transportMove, String name, int x,
 			int z, String roadNameOri, int xD, int zD, String roadNameDest) {
 		Address a = new Address();
 		a.setX(x);
@@ -89,9 +93,7 @@ public class CityRequest {
 		Address aD = new Address();
 		aD.setX(xD);
 		aD.setZ(zD);
-		aD.setRoadName(roadNameDest);
-
-		PopProduct p = new PopProduct(10, 2);
+		aD.setRoadName(roadNameDest);	
 		session.moveTransport(transportMove, name, a, aD, p);
 	}
 
@@ -103,8 +105,16 @@ public class CityRequest {
 		return city.getMax();
 	}
 
+	public Building findBuildingByName(String name) {
+		return city.findBuildingByName(name);
+	}
+
 	public Building findBuilding(int x, int z) {
 		return city.findBuilding(x, z);
+	}
+
+	public Road findRoad(int x, int z, int xD, int zD) {
+		return city.findRoad(x, z, xD, zD);
 	}
 
 	public void removeTransport(String name) {
